@@ -20,6 +20,7 @@ from agents.registry import AGENTS, AGENTS_BY_SLUG
 from chat.components import (
     left_pane, right_pane, signin_overlay, sample_cards, message_bubble,
 )
+from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions, _ensure_session, _session_messages
 from db import connect, fetch_all, fetch_one
 from landing.components import TAILWIND_CONFIG
@@ -70,7 +71,7 @@ def _pipeline_head(title: str):
     )
 
 
-def _card_for(company: dict) -> Div:
+def _card_for(company: dict, sym: str = "€") -> Div:
     name = company["name"]
     sector = company.get("sector") or ""
     sub_sector = company.get("sub_sector") or ""
@@ -97,13 +98,13 @@ def _card_for(company: dict) -> Div:
                 cls="card-meta",
             ),
             Div(
-                Span(f"${float(rev)/1_000_000:.0f}M rev", cls="card-metric"),
+                Span(f"{sym}{float(rev)/1_000_000:.0f}M rev", cls="card-metric"),
                 Span("·"),
-                Span(f"${float(eb)/1_000_000:.1f}M EBITDA", cls="card-metric"),
+                Span(f"{sym}{float(eb)/1_000_000:.1f}M EBITDA", cls="card-metric"),
                 cls="card-metrics-line",
             ),
             Div(
-                Span(f"EV ${float(ev)/1_000_000:.0f}M" if ev else "—", cls="card-ev"),
+                Span(f"EV {sym}{float(ev)/1_000_000:.0f}M" if ev else "—", cls="card-ev"),
                 Span(f"{float(mult):.1f}x" if mult else "", cls="card-mult"),
                 cls="card-ev-line",
             ),
@@ -114,7 +115,7 @@ def _card_for(company: dict) -> Div:
     )
 
 
-def _board(companies_by_stage: dict[str, list[dict]]) -> Div:
+def _board(companies_by_stage: dict[str, list[dict]], sym: str = "€") -> Div:
     columns = []
     for stage_key, stage_label in STAGES:
         cards = companies_by_stage.get(stage_key, [])
@@ -125,7 +126,7 @@ def _board(companies_by_stage: dict[str, list[dict]]) -> Div:
                 cls="col-head",
                 style=f"border-bottom-color:{STAGE_COLORS.get(stage_key, '#CFC8B4')}",
             ),
-            Div(*[_card_for(c) for c in cards], cls="col-body"),
+            Div(*[_card_for(c, sym) for c in cards], cls="col-body"),
             cls="kanban-col",
         ))
     return Div(*columns, cls="kanban-board")
@@ -168,7 +169,7 @@ def pipeline_home(sess, sector: str = "", ownership: str = ""):
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
-        left_pane(user_email=email, sessions=sessions, current_sid=""),
+        left_pane(user_email=email, sessions=sessions, current_sid="", current_currency=get_currency(sess)),
         Div(
             Div(
                 Div(
@@ -185,7 +186,7 @@ def pipeline_home(sess, sector: str = "", ownership: str = ""):
                 cls="chat-header",
             ),
             filters,
-            _board(by_stage),
+            _board(by_stage, currency_symbol(get_currency(sess))),
             cls="center-pane pipeline-center",
         ),
         Script(src="/static/chat.js"),
@@ -243,6 +244,7 @@ def deal_detail(sess, slug: str):
     session_id = deal_sid_row["id"] if deal_sid_row else None
     messages = _session_messages(session_id) if session_id else []
 
+    sym = currency_symbol(get_currency(sess))
     # ── Deal brief on right-side artifact pane ──
     brief_html = f"""
     <div class="deal-brief">
@@ -260,14 +262,14 @@ def deal_detail(sess, slug: str):
       </div>
       <h4>LTM financials</h4>
       <div class="deal-kv">
-        <div><strong>Revenue</strong> ${ltm_rev/1_000_000:.1f}M</div>
-        <div><strong>Adj. EBITDA</strong> ${ltm_eb/1_000_000:.1f}M</div>
+        <div><strong>Revenue</strong> {sym}{ltm_rev/1_000_000:.1f}M</div>
+        <div><strong>Adj. EBITDA</strong> {sym}{ltm_eb/1_000_000:.1f}M</div>
         <div><strong>Margin</strong> {100*ltm_eb/max(1, ltm_rev):.1f}%</div>
-        <div><strong>Ask EV</strong> ${float(co.get('enterprise_value') or 0)/1_000_000:.0f}M ({float(co.get('ask_multiple') or 0):.1f}x)</div>
+        <div><strong>Ask EV</strong> {sym}{float(co.get('enterprise_value') or 0)/1_000_000:.0f}M ({float(co.get('ask_multiple') or 0):.1f}x)</div>
       </div>
       <h4>Top customers</h4>
       <ul class="deal-list">
-        {"".join(f"<li><span>{c['counterparty']}</span><span class='muted'>${float(c['annual_value'] or 0)/1000:.0f}k / yr</span></li>" for c in top_contracts) or "<li class='muted'>No contracts loaded.</li>"}
+        {"".join(f"<li><span>{c['counterparty']}</span><span class='muted'>{sym}{float(c['annual_value'] or 0)/1000:.0f}k / yr</span></li>" for c in top_contracts) or "<li class='muted'>No contracts loaded.</li>"}
       </ul>
       <h4>DD findings</h4>
       <ul class="deal-list">
@@ -285,7 +287,7 @@ def deal_detail(sess, slug: str):
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
-        left_pane(user_email=email, sessions=sessions, current_sid=str(session_id) if session_id else ""),
+        left_pane(user_email=email, sessions=sessions, current_sid=str(session_id) if session_id else "", current_currency=get_currency(sess)),
         Div(
             Div(
                 Div(

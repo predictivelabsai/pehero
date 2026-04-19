@@ -200,7 +200,7 @@ def agent_detail(slug: str):
             cls="border-t border-line",
         ),
         CTASection(headline=f"Try {agent.name} now.",
-                   body="Synthetic PE data is already loaded. Open the app and type the example prompt above.",
+                   body="BYOD — bring your own deal data and try the example prompt above against it.",
                    cta_label="Open the app", cta_href="/app"),
         current_path="/agents",
     )
@@ -258,14 +258,14 @@ def pricing():
     tiers = [
         {
             "name": "Pilot",
-            "price": "$0",
-            "sub": "for 30 days",
-            "blurb": "One associate, one deal, the full squad, synthetic + your own data.",
+            "price": "BYOD",
+            "sub": "bring your own data · 30-day pilot",
+            "blurb": "One associate, one deal, the full squad — running against your own data.",
             "features": [
                 "Full squad of specialists",
                 "1 concurrent user",
                 "Up to 5 live deals",
-                "Synthetic PE dataset included",
+                "BYOD — connect your deal data on day one",
                 "Email support",
             ],
             "cta": ("Start pilot", "/contact"),
@@ -308,7 +308,7 @@ def pricing():
         "Pricing",
         Section_(
             Eyebrow("Pricing"),
-            Heading(1, "Start with synthetic data. Upgrade when it sticks.", cls="mt-4 max-w-4xl"),
+            Heading(1, "BYOD — bring your own data. Upgrade when it sticks.", cls="mt-4 max-w-4xl"),
             P("No setup fee. No per-seat tax. No prompt-token surprise.",
               cls="mt-6 text-ink-muted text-lg max-w-3xl leading-relaxed"),
             cls="border-t border-line",
@@ -418,7 +418,7 @@ def contact_post(name: str = "", email: str = "", firm: str = "", message: str =
             Heading(1, "Thanks — we'll be in touch shortly.", cls="mt-4 max-w-4xl"),
             P("Usually within one business day. In the meantime, ",
               A("open the app", href="/app", cls="text-accent underline"),
-              " — synthetic PE data is already loaded.",
+              " — BYOD: connect your deal data to see the squad on real work.",
               cls="mt-6 text-ink-muted text-lg max-w-3xl leading-relaxed"),
             cls="border-t border-line",
         ),

@@ -134,9 +134,9 @@
         let prompts = (slug && AGENT_PROMPTS[slug]) || [];
         if (!prompts.length) {
             prompts = [
-                "triage: vertical SaaS, $8M EBITDA, 20% growth, $85M ask",
+                "triage: vertical SaaS, €8M EBITDA, 20% growth, €85M ask",
                 "lbo: 5-year model for Northwind at 12x entry, 12% growth",
-                "comps: software precedent M&A 2022-2024 under $500M EV",
+                "comps: software precedent M&A 2022-2024 under €500M EV",
                 "memo: draft the IC memo for Meridian Healthcare",
                 "vdr: audit the data room for Meridian Healthcare",
                 "crm: top 10 LPs to reach out to for Fund V",
@@ -391,6 +391,19 @@
         if (!email) return;
         const r = await fetch("/app/auth/signin", { method: "POST", body: new URLSearchParams({ email }) });
         if (r.ok) window.location.reload();
+    };
+    window.setCurrency = async (code) => {
+        const r = await fetch("/app/config", {
+            method: "POST",
+            body: new URLSearchParams({ currency: code }),
+        });
+        if (r.ok) {
+            document.querySelectorAll(".cfg-chip").forEach(el => {
+                el.classList.toggle("active", el.textContent.trim().endsWith(code));
+            });
+            // Page reloads next navigation; refresh pipeline/cards currency now.
+            window.location.reload();
+        }
     };
     window.signOut = async () => {
         await fetch("/app/auth/signout", { method: "POST" });

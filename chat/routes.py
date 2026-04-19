@@ -20,7 +20,9 @@ from chat import sse
 from db import connect, fetch_all, fetch_one
 from landing.components import page
 from utils.llm import default_llm
-from utils.session import get_user_email, set_user_email, clear_user, get_user_id, set_user_id
+from utils.session import (get_user_email, set_user_email, clear_user,
+                           get_user_id, set_user_id,
+                           get_currency, set_currency, SYMBOLS)
 
 log = logging.getLogger(__name__)
 
@@ -129,6 +131,7 @@ def app_home(sess, sid: str = ""):
         current_sid=str(sid) if sid else "",
         messages=messages,
         current_agent_slug=current_agent,
+        current_currency=get_currency(sess),
     )
 
 
@@ -167,6 +170,16 @@ async def chat_stream(request: Request):
     history = _session_messages(session_id)[:-1]  # exclude the one we just inserted
     stripped_msg = agent_router.strip_prefix(user_msg)
 
+    # Prepend a short currency directive so any specialist defaults to the
+    # user's preferred currency when formatting figures. Does not affect the
+    # stored user message.
+    currency = get_currency(sess)
+    currency_directive = (
+        f"[Session preferences] Reporting currency: {currency} "
+        f"({SYMBOLS.get(currency, '€')}). Format all monetary figures in "
+        f"{currency} unless the user explicitly overrides in this turn."
+    )
+
     async def event_stream():
         yield sse.event("session", {"sid": session_id})
         yield sse.event(sse.AGENT_ROUTE, {
@@ -176,7 +189,7 @@ async def chat_stream(request: Request):
         })
 
         # Build LangChain messages
-        lc_messages = []
+        lc_messages = [SystemMessage(content=currency_directive)]
         for h in history[-20:]:
             if h["role"] == "user":
                 lc_messages.append(HumanMessage(content=h["content"]))
@@ -256,6 +269,19 @@ async def signin(request: Request):
 async def signout(request: Request):
     clear_user(request.session)
     return JSONResponse({"ok": True})
+
+
+# ── Config (currency, etc.) ──────────────────────────────────────────
+
+@rt("/app/config", methods=["POST"])
+async def app_config(request: Request):
+    form = await request.form()
+    currency = (form.get("currency") or "").strip()
+    if currency:
+        current = set_currency(request.session, currency)
+    else:
+        current = get_currency(request.session)
+    return JSONResponse({"ok": True, "currency": current, "symbol": SYMBOLS.get(current, "€")})
 
 
 # ── Debug ping (kept from Phase 0) ──────────────────────────────────

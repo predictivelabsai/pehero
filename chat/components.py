@@ -48,12 +48,12 @@ def _render_content(content: str) -> str:
 def welcome_hero():
     """Empty-state hero with category chips + example prompts."""
     prompts = [
-        ("triage: vertical SaaS, $8M EBITDA, 20% growth, $85M ask", "deal_triage"),
+        ("triage: vertical SaaS, €8M EBITDA, 20% growth, €85M ask", "deal_triage"),
         ("lbo: 5-year model for Northwind Systems at 12x entry, 12% growth", "pro_forma_builder"),
         ("abstract: change-of-control across my top-10 customer MSAs", "lease_abstractor"),
         ("memo: draft the IC memo for Meridian Healthcare", "investor_memo"),
         ("price: where is pricing most below market across portcos?", "rent_optimization"),
-        ("comps: software precedent M&A 2022-2024 under $500M EV", "comp_finder"),
+        ("comps: software precedent M&A 2022-2024 under €500M EV", "comp_finder"),
     ]
     return Div(
         Div(
@@ -126,6 +126,27 @@ def sessions_list(sessions: list[dict], current_sid: str = ""):
     return Div(*items, cls="session-list")
 
 
+def _config_section(current_currency: str = "EUR"):
+    """Configuration: currency selector (EUR default) + anything else down the line."""
+    from utils.session import CURRENCIES, SYMBOLS
+    pills = []
+    for c in CURRENCIES:
+        active = c == current_currency
+        pills.append(Button(
+            Span(SYMBOLS[c], cls="cfg-sym"),
+            Span(c, cls="cfg-code"),
+            cls=f"cfg-chip{' active' if active else ''}",
+            onclick=f"setCurrency({c!r})",
+        ))
+    return Div(
+        Div(Span("Currency", cls="cfg-label"),
+            Span("affects agents + displays", cls="cfg-help"),
+            cls="cfg-row"),
+        Div(*pills, cls="cfg-pills"),
+        cls="config-section",
+    )
+
+
 def _bottom_nav(current_path: str = ""):
     items = [
         ("Pipeline",     "/app/pipeline",     "◆"),
@@ -145,7 +166,7 @@ def _bottom_nav(current_path: str = ""):
 
 
 def left_pane(*, user_email: str | None, sessions: list[dict], current_sid: str = "",
-              current_path: str = ""):
+              current_path: str = "", current_currency: str = "EUR"):
     """The full left pane composition."""
     signin_block = (
         Div(
@@ -185,6 +206,12 @@ def left_pane(*, user_email: str | None, sessions: list[dict], current_sid: str 
                 _bottom_nav(current_path),
                 cls="workspace-section",
             ),
+            Hr(cls="left-hr"),
+            Div(
+                Div(Span("Configuration", cls="section-label")),
+                _config_section(current_currency=current_currency),
+                cls="config-wrap",
+            ),
             cls="left-body",
         ),
         Div(signin_block, cls="left-footer"),
@@ -205,9 +232,9 @@ def sample_cards(current_agent_slug: str | None = None):
         label = f"Try with {agent.name}"
     else:
         prompts = [
-            "triage: vertical SaaS, $8M EBITDA, 20% growth, $85M ask",
+            "triage: vertical SaaS, €8M EBITDA, 20% growth, €85M ask",
             "lbo: 5-year model for Northwind at 12x entry, 12% growth",
-            "comps: software precedent M&A 2022-2024 under $500M EV",
+            "comps: software precedent M&A 2022-2024 under €500M EV",
             "memo: draft the IC memo for Meridian Healthcare",
             "vdr: audit the data room for Meridian Healthcare",
             "crm: top 10 LPs to reach out to for Fund V",

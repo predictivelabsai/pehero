@@ -12,7 +12,8 @@ from chat.components import left_pane, center_pane, right_pane, signin_overlay
 
 
 def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
-              messages: list, current_agent_slug: str | None = None):
+              messages: list, current_agent_slug: str | None = None,
+              current_currency: str = "EUR"):
     head = Head(
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
@@ -32,7 +33,8 @@ def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
-        left_pane(user_email=user_email, sessions=sessions, current_sid=current_sid),
+        left_pane(user_email=user_email, sessions=sessions, current_sid=current_sid,
+                  current_currency=current_currency),
         center_pane(messages=messages, current_agent_slug=current_agent_slug),
         right_pane(),
         Script(src="/static/chat.js"),

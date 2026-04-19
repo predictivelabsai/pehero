@@ -236,7 +236,7 @@ def Hero():
                 _StatCell("Squad", "of PE specialists, on call"),
                 _StatCell("5", "workflow stages, end-to-end"),
                 _StatCell("<90s", "to a go / no-go decision"),
-                _StatCell("$0", "to try with synthetic data"),
+                _StatCell("BYOD", "bring your own data"),
                 cls="max-w-7xl mx-auto px-5 md:px-6 py-5 md:py-6 grid grid-cols-2 md:grid-cols-4 gap-6",
             ),
             cls="border-y border-line bg-bg-elevated/60",
@@ -252,8 +252,8 @@ def ProductTour():
                 Eyebrow("Product tour"),
                 Heading(2, "See it in motion.", cls="mt-3 max-w-3xl mb-2"),
                 P("A 30-second walk through chat, the pipeline kanban, deal detail, "
-                  "analytics and prompt editing — captured from the running app against "
-                  "synthetic PE data.",
+                  "analytics and prompt editing — BYOD: bring your own data and "
+                  "see the squad in action on your deals.",
                   cls="mt-2 text-ink-muted text-base max-w-2xl leading-relaxed mb-6"),
                 cls="mb-6",
             ),
@@ -395,7 +395,7 @@ def CTASection(*, headline: str = "Stop stitching tools. Start closing deals.",
                 P(body, cls="mt-5 text-ink-muted text-lg max-w-2xl leading-relaxed"),
                 Div(
                     Button_(cta_label, href=cta_href, primary=True),
-                    Button_("Try with synthetic data", href="/app", primary=False),
+                    Button_("BYOD — bring your own data", href="/app", primary=False),
                     cls="mt-8 flex items-center gap-3 flex-wrap",
                 ),
                 cls="max-w-7xl mx-auto px-5 md:px-6 py-20 md:py-28 relative z-10",

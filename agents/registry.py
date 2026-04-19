@@ -64,10 +64,10 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="PitchBook + banker feeds + proprietary outreach, ranked by fit.",
         description="Continuously scans sell-side teasers, PitchBook/Grata/SourceScrub feeds, and proprietary founder outreach channels, deduplicating deals and surfacing those that fit your fund's mandate.",
         example_prompts=(
-            "scan: lower-middle-market B2B SaaS, $5-15M EBITDA, North America",
+            "scan: lower-middle-market B2B SaaS, €5-15M EBITDA, North America",
             "What healthcare services deals surfaced this week?",
-            "Any founder-owned industrial companies in the Midwest under $50M EV?",
-            "Find DACH consumer deals $100-300M EV that are founder-led",
+            "Any founder-owned industrial companies in the Midwest under €50M EV?",
+            "Find DACH consumer deals €100-300M EV that are founder-led",
             "Show me sponsor-owned business services deals past 4-year hold",
         ),
     ),
@@ -77,10 +77,10 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="Go / no-go in 90 seconds against your fund mandate.",
         description="Screens a deal against your fund's investment criteria — check size, sector, geography, growth profile, leverage capacity — and returns a go/no-go with 3-bullet rationale.",
         example_prompts=(
-            "triage: vertical SaaS for auto dealers, $8M EBITDA, 20% growth, $85M ask",
-            "Should we pursue the Acme Industrial carve-out? $120M EV, cyclical.",
+            "triage: vertical SaaS for auto dealers, €8M EBITDA, 20% growth, €85M ask",
+            "Should we pursue the Acme Industrial carve-out? €120M EV, cyclical.",
             "Triage Northwind Systems — is this a fit for Fund IV?",
-            "Go/no-go on a $45M EV HCIT platform with 14% growth",
+            "Go/no-go on a €45M EV HCIT platform with 14% growth",
         ),
     ),
     AgentSpec(
@@ -89,7 +89,7 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="M&A + trading comps across 3 sources with outlier filtering.",
         description="Pulls precedent M&A transactions and public trading comps from PitchBook, MergerMarket, and Capital IQ, filters outliers, and returns a tight set for EV/EBITDA and EV/Revenue benchmarking.",
         example_prompts=(
-            "comps: vertical SaaS precedent M&A 2022-2024, <$500M EV",
+            "comps: vertical SaaS precedent M&A 2022-2024, <€500M EV",
             "Find trading comps for a mid-market HCIT platform",
             "What's the median EV/EBITDA for testing-inspection deals?",
             "Benchmark EV/Revenue for specialty industrial distributors",
@@ -101,7 +101,7 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="Ranks companies by likelihood of sale in the next 12 months.",
         description="Combines founder age, fund vintage, sponsor hold period, hiring freezes, and proxy-filing signals to score every target in your pipeline for likelihood of a sale process.",
         example_prompts=(
-            "intent: founder-owned logistics companies, $50-150M revenue, southeast US",
+            "intent: founder-owned logistics companies, €50-150M revenue, southeast US",
             "Which of our tracked sponsor-held assets are past the 5-year hold mark?",
             "Rank founder-owned software targets by sale likelihood",
             "Show family-owned consumer businesses with highest succession risk",
@@ -151,7 +151,7 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="Unitranche + mezz + revolver — with live leverage + DSCR.",
         description="Models LBO capital structures across senior / unitranche / mezzanine / seller notes / revolver — with total-leverage turns, DSCR, fixed-charge coverage, and refinance sensitivity.",
         example_prompts=(
-            "debt: size a 5.5x unitranche on Northwind with a $15M revolver",
+            "debt: size a 5.5x unitranche on Northwind with a €15M revolver",
             "What's the max leverage at 1.35x FCCR on Meridian Healthcare?",
             "Add a 1.0x mezz tranche and re-solve for DSCR",
             "How sensitive is the stack to a 200bps rate increase?",
@@ -204,7 +204,7 @@ AGENTS: tuple[AgentSpec, ...] = (
             "legal: summarize legal issues for Meridian Healthcare",
             "Are there any HIPAA or state-licensure gaps flagged on the Midwest deal?",
             "Which change-of-control consents are required at Northwind close?",
-            "Any open litigation above $1M exposure in the Northwind DD?",
+            "Any open litigation above €1M exposure in the Northwind DD?",
         ),
     ),
     AgentSpec(

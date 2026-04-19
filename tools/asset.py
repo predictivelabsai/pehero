@@ -61,7 +61,7 @@ def _pricing_opt(slug_or_id: str) -> str:
     return "__ARTIFACT__" + json.dumps({
         "kind": "table",
         "title": f"Pricing optimization — {co['name']}",
-        "subtitle": f"{len(recs)} customers · total estimated ARR lift ${total_lift:,.0f}",
+        "subtitle": f"{len(recs)} customers · total estimated ARR lift {total_lift:,.0f}",
         "columns": ["counterparty", "segment", "in_place_arr", "rec_increase_pct",
                     "rec_arr_lift", "renewal_date"],
         "rows": recs[:25],

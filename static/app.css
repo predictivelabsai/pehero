@@ -304,6 +304,25 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .followup-btn.followup-yes:hover { background: var(--ink); border-color: var(--ink); }
 .followup-btn.followup-no:hover { color: var(--red); border-color: var(--red); }
 
+/* ── Configuration section in left pane ─────────────────────────── */
+.config-section { padding: .35rem .25rem .5rem; }
+.cfg-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0 .3rem .3rem; }
+.cfg-label { font-size: .72rem; color: var(--ink); font-weight: 500; }
+.cfg-help { font-size: .58rem; color: var(--ink-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: .04em; }
+.cfg-pills { display: flex; gap: .25rem; padding: 0 .15rem; }
+.cfg-chip {
+    flex: 1; padding: .3rem .1rem;
+    display: flex; align-items: center; justify-content: center; gap: .25rem;
+    background: var(--bg-raise); border: 1px solid var(--line);
+    border-radius: .4rem; color: var(--ink-muted);
+    font-size: .68rem; cursor: pointer; transition: all .15s;
+    font-family: 'JetBrains Mono', monospace;
+}
+.cfg-chip:hover { border-color: var(--accent); color: var(--accent); }
+.cfg-chip.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+.cfg-sym { font-size: .78rem; font-weight: 600; }
+.cfg-code { font-size: .62rem; letter-spacing: .04em; }
+
 /* ── Left pane bottom-nav (Pipeline / Instructions / Analytics) ── */
 .bottom-nav { padding: .25rem; margin-top: .4rem; display: flex; flex-direction: column; gap: .15rem; }
 .bottom-nav-link {

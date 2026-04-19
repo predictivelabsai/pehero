@@ -20,6 +20,7 @@ from starlette.responses import RedirectResponse
 from app import rt
 from agents.registry import AGENTS, AGENTS_BY_SLUG
 from chat.components import left_pane, signin_overlay
+from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions
 from landing.components import TAILWIND_CONFIG
 
@@ -71,7 +72,7 @@ def instructions_home(sess):
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
-        left_pane(user_email=email, sessions=sessions, current_sid=""),
+        left_pane(user_email=email, sessions=sessions, current_sid="", current_currency=get_currency(sess)),
         Div(
             Div(
                 Div(
@@ -132,7 +133,7 @@ def instruction_edit(sess, slug: str, saved: bool = False):
     body = Body(
         signin_overlay(),
         Div(id="left-overlay", cls="left-overlay", onclick="toggleLeftPane()"),
-        left_pane(user_email=email, sessions=sessions, current_sid=""),
+        left_pane(user_email=email, sessions=sessions, current_sid="", current_currency=get_currency(sess)),
         Div(
             Div(
                 Div(

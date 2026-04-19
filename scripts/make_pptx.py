@@ -224,7 +224,7 @@ def _closing_slide(prs):
           "hello@pehero.fyi   ·   pehero.fyi/contact",
           size=14, bold=True, color=INK, align=PP_ALIGN.CENTER)
     _text(s, Cm(0), Cm(15), SLIDE_W, Cm(1),
-          "Demo dataset uses synthetic PE data.",
+          "BYOD — bring your own deal data.",
           size=10, color=INK_DIM, align=PP_ALIGN.CENTER)
     return s
 

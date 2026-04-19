@@ -25,3 +25,27 @@ def get_user_id(session: dict[str, Any]) -> int | None:
 
 def set_user_id(session: dict[str, Any], user_id: int) -> None:
     session["user_id"] = int(user_id)
+
+
+# ── Currency preference ─────────────────────────────────────────────────
+CURRENCIES = ("EUR", "GBP", "USD")
+SYMBOLS = {"EUR": "€", "GBP": "£", "USD": "$"}
+DEFAULT_CURRENCY = "EUR"
+
+
+def get_currency(session: dict[str, Any]) -> str:
+    cur = (session.get("currency") or DEFAULT_CURRENCY).upper()
+    return cur if cur in CURRENCIES else DEFAULT_CURRENCY
+
+
+def set_currency(session: dict[str, Any], currency: str) -> str:
+    c = (currency or "").upper()
+    if c in CURRENCIES:
+        session["currency"] = c
+    return get_currency(session)
+
+
+def currency_symbol(currency: str | None) -> str:
+    if not currency:
+        currency = DEFAULT_CURRENCY
+    return SYMBOLS.get(currency.upper(), "€")

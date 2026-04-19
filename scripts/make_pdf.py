@@ -219,7 +219,7 @@ def _closing_slide(styles):
         ),
         Spacer(1, 2 * mm),
         Paragraph(
-            "<i>Demo dataset uses synthetic PE data.</i>",
+            "<i>BYOD — bring your own deal data.</i>",
             cta_meta,
         ),
         PageBreak(),
