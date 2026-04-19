@@ -24,6 +24,18 @@ class Settings(BaseSettings):
     embedding_model: str = Field(default="BAAI/bge-small-en-v1.5", alias="EMBEDDING_MODEL")
     embedding_dim: int = Field(default=384, alias="EMBEDDING_DIM")
 
+    # Web search (Tavily default, EXA fallback)
+    tavily_api_key: str = Field(default="", alias="TAVILY_API_KEY")
+    exa_api_key: str = Field(default="", alias="EXA_API_KEY")
+
+    # Baltic registries + tax authorities (optional; see docs/registry_integration.md)
+    lt_cr_api_key: str = Field(default="", alias="LT_CR_API_KEY")
+    lt_vmi_api_key: str = Field(default="", alias="LT_VMI_API_KEY")
+    lv_ur_api_key: str = Field(default="", alias="LV_UR_API_KEY")
+    lv_vid_api_key: str = Field(default="", alias="LV_VID_API_KEY")
+    ee_ari_api_key: str = Field(default="", alias="EE_ARI_API_KEY")
+    ee_emta_api_key: str = Field(default="", alias="EE_EMTA_API_KEY")
+
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_secret: str = Field(default="change-me", alias="APP_SECRET")
     port: int = Field(default=5058, alias="PORT")

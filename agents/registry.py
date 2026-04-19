@@ -67,6 +67,8 @@ AGENTS: tuple[AgentSpec, ...] = (
             "scan: lower-middle-market B2B SaaS, $5-15M EBITDA, North America",
             "What healthcare services deals surfaced this week?",
             "Any founder-owned industrial companies in the Midwest under $50M EV?",
+            "Find DACH consumer deals $100-300M EV that are founder-led",
+            "Show me sponsor-owned business services deals past 4-year hold",
         ),
     ),
     AgentSpec(
@@ -77,6 +79,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "triage: vertical SaaS for auto dealers, $8M EBITDA, 20% growth, $85M ask",
             "Should we pursue the Acme Industrial carve-out? $120M EV, cyclical.",
+            "Triage Northwind Systems — is this a fit for Fund IV?",
+            "Go/no-go on a $45M EV HCIT platform with 14% growth",
         ),
     ),
     AgentSpec(
@@ -87,6 +91,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "comps: vertical SaaS precedent M&A 2022-2024, <$500M EV",
             "Find trading comps for a mid-market HCIT platform",
+            "What's the median EV/EBITDA for testing-inspection deals?",
+            "Benchmark EV/Revenue for specialty industrial distributors",
         ),
     ),
     AgentSpec(
@@ -97,6 +103,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "intent: founder-owned logistics companies, $50-150M revenue, southeast US",
             "Which of our tracked sponsor-held assets are past the 5-year hold mark?",
+            "Rank founder-owned software targets by sale likelihood",
+            "Show family-owned consumer businesses with highest succession risk",
         ),
     ),
 
@@ -109,6 +117,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "cap: parse the cap table for Northwind Systems and show fully-diluted ownership",
             "Who has liquidation preference at Northwind Systems?",
+            "What's the options overhang at Meridian Healthcare?",
+            "Show the top-5 holders and their capital invested for Northwind",
         ),
     ),
     AgentSpec(
@@ -119,6 +129,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "ltm: normalize the LTM P&L for Northwind Systems with standard add-backs",
             "Compare Northwind EBITDA margin to SaaS peer median",
+            "Show the add-back bridge from reported to adjusted EBITDA for Meridian",
+            "What's the revenue growth CAGR for Northwind over the last 24 months?",
         ),
     ),
     AgentSpec(
@@ -127,8 +139,10 @@ AGENTS: tuple[AgentSpec, ...] = (
         one_liner="5-year LBO model with sensitivity grid — editable assumptions.",
         description="Builds a full 5-year LBO model — revenue growth, margin expansion, capex, working capital, debt paydown, exit multiple. Sensitivity grid across the two most impactful variables.",
         example_prompts=(
-            "lbo: build a 5-year model for Northwind assuming 12% rev growth, 300bps margin exp",
+            "lbo: build a 5-year model for Northwind at 12% rev growth, 300bps margin exp",
             "What's the base-case MOIC on Meridian Healthcare at 11x exit?",
+            "Run a downside scenario: 5% growth, 100bps margin compression",
+            "Show the sensitivity of IRR to entry vs exit multiple on Northwind",
         ),
     ),
     AgentSpec(
@@ -139,6 +153,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "debt: size a 5.5x unitranche on Northwind with a $15M revolver",
             "What's the max leverage at 1.35x FCCR on Meridian Healthcare?",
+            "Add a 1.0x mezz tranche and re-solve for DSCR",
+            "How sensitive is the stack to a 200bps rate increase?",
         ),
     ),
     AgentSpec(
@@ -149,6 +165,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "ret: compute returns on the Meridian Healthcare model",
             "Show the value-creation bridge for Northwind at 3x MOIC",
+            "Decompose MOIC: EBITDA growth vs multiple arb vs debt paydown",
+            "What's the unlevered IRR on Northwind at the current base case?",
         ),
     ),
 
@@ -161,6 +179,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "vdr: audit the data room for Meridian Healthcare",
             "Which DD items are missing in the Northwind VDR?",
+            "What's still outstanding on tax and legal for Northwind?",
+            "Compare VDR completeness across our top 3 active deals",
         ),
     ),
     AgentSpec(
@@ -171,6 +191,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "abstract: the top-10 customer MSAs for Northwind Systems",
             "Any change-of-control triggers across Meridian's supplier contracts?",
+            "List auto-renew + exclusivity clauses for Northwind's top customers",
+            "Which Northwind contracts expire in the next 12 months?",
         ),
     ),
     AgentSpec(
@@ -181,6 +203,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "legal: summarize legal issues for Meridian Healthcare",
             "Are there any HIPAA or state-licensure gaps flagged on the Midwest deal?",
+            "Which change-of-control consents are required at Northwind close?",
+            "Any open litigation above $1M exposure in the Northwind DD?",
         ),
     ),
     AgentSpec(
@@ -191,6 +215,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "ops: what operational gaps are flagged for Northwind?",
             "Build a 100-day plan for Meridian Healthcare post-close",
+            "Where is working capital tied up at Northwind?",
+            "What systems / ERP gaps need remediation post-close?",
         ),
     ),
     AgentSpec(
@@ -201,6 +227,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "esg: any environmental liabilities at the Midwest industrial deal?",
             "Summarize ESG risk across my current pipeline",
+            "What governance red flags were flagged for Meridian?",
+            "Are there any diversity / turnover risks highlighted at Northwind?",
         ),
     ),
 
@@ -213,6 +241,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "memo: draft the IC memo for Meridian Healthcare",
             "Write a 5-page IC memo for Northwind Systems",
+            "Build the thesis + risks sections for Northwind only",
+            "Summarize the returns analysis for the IC pre-read",
         ),
     ),
     AgentSpec(
@@ -223,6 +253,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "teaser: build a co-invest teaser for Meridian Healthcare",
             "Draft a blind LP teaser for the Northwind deal",
+            "Create a 1-page executive summary for the Fund IV LPs",
+            "Build a tombstone slide for the deal announcement",
         ),
     ),
     AgentSpec(
@@ -233,6 +265,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "lpupd: draft Q1 letter for Fund IV LPs",
             "Generate a portfolio update for the Fund III LPs",
+            "Write the market outlook section for the quarterly letter",
+            "Summarize capital calls and distributions for this quarter",
         ),
     ),
     AgentSpec(
@@ -243,6 +277,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "crm: who are the top 10 LPs to reach out to for Fund V this week?",
             "Draft a re-engagement email to LPs we haven't touched in 60 days",
+            "List endowment LPs that are a fit for our buyout mandate",
+            "Draft a Fund V first-close announcement to qualified LPs",
         ),
     ),
 
@@ -255,6 +291,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "price: what pricing lift can we capture at Northwind at renewal?",
             "Where is pricing most below market across portcos?",
+            "Rank Northwind customers by pricing headroom at renewal",
+            "Model a 7% blended increase — estimate churn risk",
         ),
     ),
     AgentSpec(
@@ -265,6 +303,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "ebitda: what's driving the EBITDA miss at Northwind this quarter?",
             "Show me the top 5 portco-wide EBITDA variances",
+            "Which Fund IV portcos are trending to miss budget this year?",
+            "Break down the opex variance at Meridian by category",
         ),
     ),
     AgentSpec(
@@ -275,6 +315,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "vc: rank initiatives across Fund IV by EBITDA impact",
             "Should we prioritize pricing rollout or ERP replacement at Meridian?",
+            "What's the highest-ROI initiative in Northwind's VCP?",
+            "Show all 3-year VCP initiatives across the platform",
         ),
     ),
     AgentSpec(
@@ -285,6 +327,8 @@ AGENTS: tuple[AgentSpec, ...] = (
         example_prompts=(
             "churn: which Northwind customers are at highest renewal risk?",
             "Score renewal likelihood for Meridian's top 20 accounts",
+            "What's the at-risk ARR across the portfolio for Q4 renewals?",
+            "Draft a save play for Northwind's top-3 at-risk accounts",
         ),
     ),
 )

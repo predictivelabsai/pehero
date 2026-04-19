@@ -1,0 +1,189 @@
+/* PEHero — pipeline kanban + deal detail */
+
+.pipeline-app .app { padding-right: 0; }
+
+.pipeline-center { overflow-y: auto; }
+.pipeline-filters {
+    display: flex; flex-wrap: wrap; gap: .4rem;
+    padding: .75rem 1.1rem; border-bottom: 1px solid var(--line);
+    background: var(--bg-elev); align-items: center;
+}
+.filter-chip {
+    padding: .3rem .7rem; font-size: .7rem;
+    border: 1px solid var(--line); border-radius: 999px;
+    color: var(--ink-muted); background: transparent;
+    transition: all .15s; text-decoration: none;
+}
+.filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.filter-chip.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.filter-divider { color: var(--ink-dim); margin: 0 .4rem; }
+
+/* Kanban board */
+.kanban-board {
+    display: flex; gap: .6rem; padding: .75rem;
+    overflow-x: auto; align-items: flex-start; min-height: calc(100vh - 120px);
+}
+.kanban-col {
+    min-width: 260px; max-width: 290px; flex-shrink: 0;
+    background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: .6rem; display: flex; flex-direction: column;
+    max-height: calc(100vh - 150px);
+}
+.col-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .6rem .8rem; border-bottom: 2px solid var(--line-br);
+    font-size: .72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--ink);
+}
+.col-title { color: var(--ink); }
+.col-count { color: var(--ink-dim); font-family: 'JetBrains Mono', monospace; font-size: .68rem; }
+.col-body { padding: .45rem; overflow-y: auto; display: flex; flex-direction: column; gap: .4rem; }
+
+.deal-card-link { text-decoration: none; color: inherit; }
+.deal-card {
+    background: var(--bg); border: 1px solid var(--line); border-radius: .5rem;
+    padding: .6rem .7rem; transition: all .15s; cursor: pointer;
+}
+.deal-card:hover { border-color: var(--accent); background: var(--bg-raise); }
+.card-head { display: flex; align-items: center; gap: .4rem; }
+.heat-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.card-title { font-size: .82rem; font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-sub { font-size: .66rem; color: var(--ink-dim); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; }
+.card-meta { margin: .3rem 0 .25rem; }
+.card-metrics-line, .card-ev-line {
+    display: flex; gap: .3rem; font-size: .7rem; color: var(--ink-muted); align-items: center;
+}
+.card-ev { color: var(--accent); font-weight: 500; }
+.card-mult { color: var(--ink-dim); font-family: 'JetBrains Mono', monospace; }
+.card-ev-line { margin-top: .2rem; }
+
+/* Back button in header */
+.back-to-chat-btn {
+    padding: .3rem .7rem; font-size: .7rem;
+    border: 1px solid var(--line-br); border-radius: .4rem;
+    color: var(--ink-muted); background: transparent;
+    text-decoration: none; transition: all .15s;
+}
+.back-to-chat-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Deal brief in right pane */
+.deal-brief { padding: 0; }
+.deal-brief h3.deal-name { color: var(--ink); font-size: 1rem; margin: 0 0 .5rem; }
+.deal-brief h4 { color: var(--ink-dim); font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; margin: .95rem 0 .35rem; }
+.deal-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .8rem; }
+.deal-tags .tag {
+    padding: .15rem .5rem; font-size: .62rem;
+    border: 1px solid var(--line); border-radius: 999px;
+    color: var(--ink-muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .08em;
+}
+.deal-tags .tag-stage { background: var(--accent-dim); color: var(--accent-deep); border-color: var(--accent); }
+.deal-kv { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .75rem; font-size: .75rem; color: var(--ink-muted); }
+.deal-kv strong { color: var(--ink-dim); font-weight: 500; display: block; font-size: .62rem; text-transform: uppercase; letter-spacing: .1em; }
+.deal-list { list-style: none; padding: 0; margin: 0; }
+.deal-list li {
+    display: flex; justify-content: space-between; gap: .5rem;
+    padding: .3rem 0; border-bottom: 1px dashed var(--line);
+    font-size: .72rem; color: var(--ink); align-items: center;
+}
+.deal-list .muted { color: var(--ink-dim); }
+.sev { padding: .1rem .4rem; border-radius: 4px; font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; font-family: 'JetBrains Mono', monospace; }
+.sev-critical, .sev-high { background: #FBE6E2; color: var(--red); }
+.sev-medium { background: #F6EBD7; color: #8B6A2A; }
+.sev-low, .sev-info { background: var(--bg-raise); color: var(--ink-dim); }
+.deal-desc { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--line); font-size: .72rem; color: var(--ink-muted); line-height: 1.5; }
+
+.deal-chat-hint { padding: 1.5rem 2rem; text-align: center; color: var(--ink-dim); font-size: .82rem; }
+
+/* ── Instructions page ─────────────────────────────────────────── */
+.instr-list { padding: 1rem 1.2rem; max-width: 820px; margin: 0 auto; width: 100%; }
+.instr-intro { color: var(--ink-muted); font-size: .82rem; margin-bottom: 1rem; }
+.instr-shared-link {
+    display: inline-block; padding: .45rem .75rem; margin-bottom: 1rem;
+    background: var(--accent-dim); color: var(--accent-deep);
+    border: 1px solid var(--accent); border-radius: .4rem;
+    text-decoration: none; font-size: .78rem; font-weight: 600;
+}
+.instr-link { text-decoration: none; display: block; margin-bottom: .4rem; }
+.instr-row {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .75rem .9rem; background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: .45rem; transition: all .15s;
+}
+.instr-row:hover { border-color: var(--accent); }
+.instr-icon { color: var(--accent); font-size: 1.3rem; width: 1.5rem; text-align: center; }
+.instr-name { color: var(--ink); font-size: .88rem; font-weight: 600; }
+.instr-sub { color: var(--ink-muted); font-size: .72rem; margin-top: .15rem; }
+.instr-size { margin-left: auto; color: var(--ink-dim); font-size: .7rem; font-family: 'JetBrains Mono', monospace; }
+
+.instr-edit { padding: 1.25rem 1.5rem; max-width: 1000px; margin: 0 auto; width: 100%; }
+.instr-sub-big { color: var(--ink-muted); font-size: .88rem; margin-bottom: .3rem; }
+.instr-path { color: var(--ink-dim); font-size: .68rem; font-family: 'JetBrains Mono', monospace; margin-bottom: 1rem; }
+.instr-path code { background: var(--bg-elev); padding: .1rem .4rem; border-radius: .25rem; }
+.instr-textarea {
+    width: 100%; padding: 1rem; background: var(--bg-elev); border: 1px solid var(--line);
+    border-radius: .5rem; color: var(--ink); font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem; line-height: 1.6; resize: vertical;
+}
+.instr-textarea:focus { outline: none; border-color: var(--accent); }
+.instr-actions { display: flex; gap: .5rem; margin-top: .75rem; align-items: center; }
+.instr-save { padding: .5rem 1.2rem; }
+.save-banner {
+    padding: .5rem .8rem; background: var(--accent-dim); color: var(--accent-deep);
+    border: 1px solid var(--accent); border-radius: .4rem; font-size: .78rem;
+    margin-bottom: .8rem; display: inline-block;
+}
+
+/* ── Analytics page ─────────────────────────────────────────────── */
+.analytics-wrap { padding: 1.25rem 1.5rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+.analytics-hero { margin-bottom: 1.5rem; }
+.analytics-hero h2 { color: var(--ink); font-size: 1.5rem; font-weight: 500; letter-spacing: -.02em; }
+.analytics-hero p { color: var(--ink-muted); margin-top: .4rem; font-size: .88rem; }
+
+.analytics-form { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.analytics-form input {
+    flex: 1; padding: .75rem 1rem; background: var(--bg-elev);
+    border: 1px solid var(--line); border-radius: .45rem; color: var(--ink);
+    font-size: .88rem;
+}
+.analytics-form input:focus { outline: none; border-color: var(--accent); }
+.analytics-form button {
+    padding: .75rem 1.4rem; background: var(--accent); color: var(--bg);
+    border: none; border-radius: .45rem; font-weight: 600; cursor: pointer;
+}
+
+.analytics-suggestions {
+    display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.5rem;
+}
+.analytics-sugg {
+    padding: .4rem .7rem; background: transparent; border: 1px solid var(--line);
+    border-radius: 999px; font-size: .72rem; color: var(--ink-muted);
+    cursor: pointer; font-family: 'JetBrains Mono', monospace;
+}
+.analytics-sugg:hover { border-color: var(--accent); color: var(--accent); }
+
+.analytics-result {
+    background: var(--bg-elev); border: 1px solid var(--line); border-radius: .5rem;
+    padding: 1rem; margin-bottom: 1rem;
+}
+.analytics-result h3 { color: var(--ink); font-size: .9rem; margin-bottom: .5rem; }
+.analytics-result .sql {
+    background: var(--bg); padding: .6rem .8rem; border-radius: .35rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    color: var(--ink-muted); margin-bottom: .85rem;
+    border-left: 3px solid var(--accent); overflow-x: auto;
+}
+.analytics-chart { min-height: 360px; }
+.analytics-table-wrap { max-height: 280px; overflow-y: auto; }
+.analytics-error { padding: .75rem; background: #FBE6E2; color: var(--red); border: 1px solid var(--red); border-radius: .4rem; font-size: .8rem; }
+
+/* Bottom-nav links added to left pane */
+.bottom-nav { padding: .25rem; margin-top: .4rem; display: flex; flex-direction: column; gap: .15rem; }
+.bottom-nav-link {
+    display: flex; align-items: center; gap: .55rem;
+    padding: .4rem .5rem; font-size: .76rem; color: var(--ink-muted);
+    background: transparent; border-radius: .4rem; text-decoration: none;
+    transition: background .15s, color .15s;
+}
+.bottom-nav-link:hover { background: var(--bg-raise); color: var(--ink); }
+.bottom-nav-link.active { background: var(--accent-dim); color: var(--accent-deep); font-weight: 600; }
+.bottom-nav-icon { color: var(--accent); width: 1rem; text-align: center; }

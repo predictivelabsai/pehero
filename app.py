@@ -22,6 +22,9 @@ app, rt = fast_app(
 # Route modules register their handlers against `rt`. Importing for side effects.
 from landing import routes as _landing_routes  # noqa: E402,F401
 from chat import routes as _chat_routes  # noqa: E402,F401
+from chat import pipeline as _pipeline_routes  # noqa: E402,F401
+from chat import instructions as _instructions_routes  # noqa: E402,F401
+from chat import analytics as _analytics_routes  # noqa: E402,F401
 
 
 def _serve_default():

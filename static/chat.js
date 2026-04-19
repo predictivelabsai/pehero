@@ -5,7 +5,19 @@
     const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
     let currentSessionId = getSidFromURL();
+    let currentAgentSlug = null;
     let streaming = false;
+
+    // Agent-prompt lookup table — embedded by the server in a <script id="agent-prompts-data">.
+    const AGENT_PROMPTS = readJsonScript("agent-prompts-data") || {};
+    const AGENT_NAMES = readJsonScript("agent-names-data") || {};
+
+    function readJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        try { return JSON.parse(el.textContent); }
+        catch (e) { console.warn("bad JSON in #" + id, e); return null; }
+    }
 
     // ── URL session id ─────────────────────────────────────────────
     function getSidFromURL() {
@@ -26,7 +38,8 @@
         if (role === "assistant" && agentSlug) {
             const hdr = document.createElement("div");
             hdr.className = "msg-agent";
-            hdr.innerHTML = `<span class="msg-agent-icon">◆</span><span class="msg-agent-label">${agentSlug}</span>`;
+            const nice = AGENT_NAMES[agentSlug] || agentSlug;
+            hdr.innerHTML = `<span class="msg-agent-icon">◆</span><span class="msg-agent-label">${nice}</span>`;
             wrap.appendChild(hdr);
         }
         const bubble = document.createElement("div");
@@ -58,7 +71,6 @@
     }
 
     function renderMarkdownLite(text) {
-        // Tiny inline renderer — bold, bullets, fences
         let out = text
             .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
             .replace(/```([\s\S]*?)```/g, "<pre>$1</pre>")
@@ -79,6 +91,114 @@
         return html.join("\n");
     }
 
+    // ── Thinking indicator (timer + rotating tool name) ────────────
+    let thinker = null;
+    function showThinking(bubble) {
+        if (!bubble) return;
+        thinker = {
+            started: Date.now(),
+            tool: null,
+            el: document.createElement("div"),
+            timerId: null,
+        };
+        thinker.el.className = "thinking-indicator";
+        thinker.el.innerHTML = `<span class="dot"></span><span class="label">Thinking… <span class="secs">0s</span></span>`;
+        bubble.parentElement.insertBefore(thinker.el, bubble);
+        thinker.timerId = setInterval(updateThinking, 500);
+    }
+    function updateThinking() {
+        if (!thinker) return;
+        const secs = Math.floor((Date.now() - thinker.started) / 1000);
+        const label = thinker.tool
+            ? `Thinking… <span class="secs">${secs}s</span> · calling <code>${thinker.tool}</code>`
+            : `Thinking… <span class="secs">${secs}s</span>`;
+        thinker.el.querySelector(".label").innerHTML = label;
+    }
+    function setThinkingTool(name) {
+        if (!thinker) return;
+        thinker.tool = name;
+        updateThinking();
+    }
+    function hideThinking() {
+        if (!thinker) return;
+        clearInterval(thinker.timerId);
+        if (thinker.el && thinker.el.parentElement) thinker.el.parentElement.removeChild(thinker.el);
+        thinker = null;
+    }
+
+    // ── Sample cards (Gemini-style) ──────────────────────────────
+    window.updateSampleCards = (slug) => {
+        const row = $("#sample-cards-row");
+        const label = $("#sample-cards-label");
+        if (!row) return;
+        let prompts = (slug && AGENT_PROMPTS[slug]) || [];
+        if (!prompts.length) {
+            prompts = [
+                "triage: vertical SaaS, $8M EBITDA, 20% growth, $85M ask",
+                "lbo: 5-year model for Northwind at 12x entry, 12% growth",
+                "comps: software precedent M&A 2022-2024 under $500M EV",
+                "memo: draft the IC memo for Meridian Healthcare",
+                "vdr: audit the data room for Meridian Healthcare",
+                "crm: top 10 LPs to reach out to for Fund V",
+            ];
+        }
+        row.innerHTML = "";
+        prompts.slice(0, 6).forEach(p => {
+            const b = document.createElement("button");
+            b.className = "sample-card";
+            b.title = p;
+            b.innerHTML = `<span class="sample-card-text"></span>`;
+            b.querySelector(".sample-card-text").textContent = p;
+            b.onclick = () => { fillChat(p); sendMessage(null); };
+            row.appendChild(b);
+        });
+        if (label) {
+            label.innerHTML = slug && AGENT_NAMES[slug]
+                ? `<span class="sample-cards-label">Try with ${AGENT_NAMES[slug]}</span>`
+                : `<span class="sample-cards-label">Try a prompt</span>`;
+        }
+    };
+
+    // Update sample cards when the user types a prefix like "lbo:"
+    window.onInputChange = (ta) => {
+        const v = (ta.value || "").trim().toLowerCase();
+        const m = v.match(/^(\w{2,10}):/);
+        if (!m) return;
+        const prefix = m[1] + ":";
+        // find slug with this prefix
+        for (const slug of Object.keys(AGENT_PROMPTS)) {
+            const first = (AGENT_PROMPTS[slug][0] || "").toLowerCase();
+            if (first.startsWith(prefix)) { updateSampleCards(slug); return; }
+        }
+    };
+
+    // ── "Should we do that?" follow-up button ─────────────────────
+    function maybeAppendFollowUp(bubble, text) {
+        if (!bubble || !text) return;
+        // look for "Next step —" or "Next step:" pattern
+        const m = text.match(/\*?\*?Next step\*?\*?[\s]*[—–:-][\s]*([^\n]+)/i);
+        if (!m) return;
+        const action = m[1].trim().replace(/\*+$/, "");
+        const row = document.createElement("div");
+        row.className = "followup-row";
+        row.innerHTML = `
+            <div class="followup-prompt">${escapeHtml(action)}</div>
+            <button class="followup-btn followup-yes">Yes, do that</button>
+            <button class="followup-btn followup-no">No thanks</button>
+        `;
+        bubble.parentElement.appendChild(row);
+        row.querySelector(".followup-yes").onclick = () => {
+            row.remove();
+            fillChat("Yes — do that: " + action);
+            sendMessage(null);
+        };
+        row.querySelector(".followup-no").onclick = () => row.remove();
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
     // ── SSE send ──────────────────────────────────────────────────
     async function sendMessage(evt) {
         if (evt) evt.preventDefault();
@@ -90,11 +210,9 @@
         streaming = true;
         $("#send-btn").disabled = true;
 
-        // Hide welcome hero
         const wh = $("#welcome-hero");
         if (wh) wh.style.display = "none";
 
-        // user bubble
         addBubble("user", msg);
         ta.value = "";
         ta.style.height = "";
@@ -125,27 +243,36 @@
                 buffer = buffer.slice(idx + 2);
                 handleEvent(raw, (type, payload) => {
                     if (type === "agent_route") {
-                        $("#current-agent-label").textContent = payload.agent || payload.slug;
+                        const nice = payload.agent || AGENT_NAMES[payload.slug] || payload.slug;
+                        $("#current-agent-label").textContent = nice;
+                        currentAgentSlug = payload.slug;
+                        updateSampleCards(payload.slug);
                         bubble = addBubble("assistant", "", payload.slug);
                         bubble.classList.add("streaming");
+                        showThinking(bubble);
                     } else if (type === "token") {
                         if (!bubble) bubble = addBubble("assistant", "", "");
+                        if (accumulated === "") hideThinking();
                         accumulated += payload.text;
                         bubble.innerHTML = renderMarkdownLite(accumulated);
                         scrollMessagesBottom();
                     } else if (type === "tool_start") {
+                        setThinkingTool(payload.name);
                         appendToolLog(bubble || addBubble("assistant", "", ""), payload.name, payload.args);
                     } else if (type === "tool_end") {
-                        // optional: append result preview
+                        // update thinker with "(done)" flavor; leaving tool name as-is
                     } else if (type === "artifact_show") {
                         showArtifact(payload);
                     } else if (type === "error") {
+                        hideThinking();
                         if (!bubble) bubble = addBubble("assistant", "", "");
                         bubble.textContent = "Error: " + (payload.message || "unknown");
                     } else if (type === "session") {
                         if (payload.sid) setSid(payload.sid);
                     } else if (type === "done") {
+                        hideThinking();
                         if (bubble) bubble.classList.remove("streaming");
+                        maybeAppendFollowUp(bubble, accumulated);
                     }
                 });
             }
@@ -183,7 +310,6 @@
         `;
         body.prepend(card);
 
-        // Auto-open the pane
         document.querySelector(".app").classList.remove("pane-closed");
         $("#right-pane").classList.add("open");
         $("#artifact-btn").classList.add("active");
@@ -201,7 +327,7 @@
             return p.items.map(it => `
                 <div style="margin-bottom:.6rem;">
                     <div style="color:var(--ink); font-size:.8rem; font-weight:500;">${it.title || ""}</div>
-                    <div style="color:var(--ink-dim); font-size:.68rem; font-family:'JetBrains Mono',monospace;">${it.doc_type || ""} · score ${(it.score||0).toFixed(2)}</div>
+                    <div style="color:var(--ink-dim); font-size:.68rem; font-family:'JetBrains Mono',monospace;">${it.doc_type || ""}${it.url ? ` · <a href="${it.url}" target="_blank">link</a>` : ""} · score ${(it.score||0).toFixed(2)}</div>
                     <div style="color:var(--ink-muted); font-size:.75rem; margin-top:.25rem;">${(it.snippet || "").replace(/\n/g,"<br>")}</div>
                 </div>
             `).join("");
@@ -256,6 +382,7 @@
         ta.value = text;
         ta.focus();
         autoResize(ta);
+        onInputChange(ta);
     };
     window.newChat = () => { window.location.href = "/app"; };
     window.showSignIn = () => { $("#signin-overlay").classList.add("visible"); $("#signin-email").focus(); };
