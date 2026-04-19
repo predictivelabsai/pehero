@@ -1,0 +1,32 @@
+"""PEHero — FastHTML app.
+
+Single process, two route groups:
+  - /                 marketing landing (landing/routes.py)
+  - /app/*            3-pane chat product (chat/routes.py)
+"""
+
+from __future__ import annotations
+
+from fasthtml.common import fast_app, serve
+
+from utils.config import settings
+
+app, rt = fast_app(
+    live=False,
+    static_path=".",
+    pico=False,
+    secret_key=settings().app_secret,
+    htmx=True,
+)
+
+# Route modules register their handlers against `rt`. Importing for side effects.
+from landing import routes as _landing_routes  # noqa: E402,F401
+from chat import routes as _chat_routes  # noqa: E402,F401
+
+
+def _serve_default():
+    serve(port=settings().port)
+
+
+if __name__ == "__main__":
+    _serve_default()

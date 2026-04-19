@@ -1,0 +1,271 @@
+"""Chat product routes — 3-pane UI + SSE streaming + auth + sessions."""
+
+from __future__ import annotations
+
+import json
+import logging
+from typing import Optional
+
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from starlette.requests import Request
+from starlette.responses import StreamingResponse, JSONResponse, RedirectResponse
+
+from fasthtml.common import Div, H1, P
+
+from app import rt
+from agents import router as agent_router
+from agents.registry import AGENTS_BY_SLUG, by_slug
+from chat.layout import chat_page
+from chat import sse
+from db import connect, fetch_all, fetch_one
+from landing.components import page
+from utils.llm import default_llm
+from utils.session import get_user_email, set_user_email, clear_user, get_user_id, set_user_id
+
+log = logging.getLogger(__name__)
+
+
+# ── helpers ──────────────────────────────────────────────────────────
+
+def _ensure_user(sess) -> tuple[int | None, str | None]:
+    email = get_user_email(sess)
+    if not email:
+        return None, None
+    uid = get_user_id(sess)
+    if uid:
+        return uid, email
+    # upsert user and cache id
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO pehero.users (email) VALUES (%s) "
+            "ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email "
+            "RETURNING id",
+            (email,),
+        )
+        uid = cur.fetchone()[0]
+        conn.commit()
+    set_user_id(sess, uid)
+    return uid, email
+
+
+def _ensure_session(user_id: int, sid: str | int | None, first_message: str | None = None) -> int:
+    if sid:
+        try:
+            sid_int = int(sid)
+        except (TypeError, ValueError):
+            sid_int = 0
+        if sid_int:
+            row = fetch_one("SELECT id FROM pehero.chat_sessions WHERE id = %s AND user_id = %s",
+                            (sid_int, user_id))
+            if row:
+                return sid_int
+
+    title = (first_message or "New chat")[:80] if first_message else "New chat"
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO pehero.chat_sessions (user_id, title) VALUES (%s, %s) RETURNING id",
+            (user_id, title),
+        )
+        new_id = cur.fetchone()[0]
+        conn.commit()
+    return new_id
+
+
+def _list_sessions(user_id: int, limit: int = 30) -> list[dict]:
+    return fetch_all(
+        "SELECT id, title, agent_slug, updated_at "
+        "FROM pehero.chat_sessions WHERE user_id = %s "
+        "ORDER BY updated_at DESC LIMIT %s",
+        (user_id, limit),
+    )
+
+
+def _session_messages(session_id: int) -> list[dict]:
+    return fetch_all(
+        "SELECT role, content, agent_slug FROM pehero.chat_messages "
+        "WHERE session_id = %s ORDER BY id ASC",
+        (session_id,),
+    )
+
+
+def _persist_message(session_id: int, role: str, content: str,
+                     agent_slug: str | None = None, tool_calls: list | None = None):
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO pehero.chat_messages (session_id, role, content, agent_slug, tool_calls) "
+            "VALUES (%s, %s, %s, %s, %s::jsonb)",
+            (session_id, role, content, agent_slug,
+             json.dumps(tool_calls) if tool_calls else None),
+        )
+        cur.execute(
+            "UPDATE pehero.chat_sessions SET updated_at = now() WHERE id = %s",
+            (session_id,),
+        )
+        conn.commit()
+
+
+# ── GET /app ─────────────────────────────────────────────────────────
+
+@rt("/app")
+def app_home(sess, sid: str = ""):
+    uid, email = _ensure_user(sess)
+    sessions = _list_sessions(uid) if uid else []
+    messages: list[dict] = []
+    current_agent = None
+    if uid and sid:
+        try:
+            sid_int = int(sid)
+            row = fetch_one("SELECT id, agent_slug FROM pehero.chat_sessions "
+                            "WHERE id = %s AND user_id = %s", (sid_int, uid))
+            if row:
+                messages = _session_messages(sid_int)
+                current_agent = row.get("agent_slug")
+        except (TypeError, ValueError):
+            pass
+
+    return chat_page(
+        user_email=email,
+        sessions=sessions,
+        current_sid=str(sid) if sid else "",
+        messages=messages,
+        current_agent_slug=current_agent,
+    )
+
+
+# ── POST /app/chat — SSE ─────────────────────────────────────────────
+
+@rt("/app/chat", methods=["POST"])
+async def chat_stream(request: Request):
+    sess = request.session
+    form = await request.form()
+    user_msg = (form.get("msg") or "").strip()
+    sid_str = form.get("sid") or ""
+
+    if not user_msg:
+        return JSONResponse({"error": "empty message"}, status_code=400)
+
+    uid, email = _ensure_user(sess)
+    if not uid:
+        # Create a transient "guest" user on first message so signed-out users can try.
+        with connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO pehero.users (email) VALUES (%s) "
+                "ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id",
+                (f"guest+{id(sess):x}@pehero.local",),
+            )
+            uid = cur.fetchone()[0]
+            conn.commit()
+        set_user_id(sess, uid)
+
+    session_id = _ensure_session(uid, sid_str, first_message=user_msg)
+    agent_slug = agent_router.route(user_msg)
+    spec = by_slug(agent_slug)
+
+    # Persist the user message upfront
+    _persist_message(session_id, "user", user_msg)
+
+    history = _session_messages(session_id)[:-1]  # exclude the one we just inserted
+    stripped_msg = agent_router.strip_prefix(user_msg)
+
+    async def event_stream():
+        yield sse.event("session", {"sid": session_id})
+        yield sse.event(sse.AGENT_ROUTE, {
+            "slug": agent_slug,
+            "agent": spec.name if spec else agent_slug,
+            "icon": spec.icon if spec else "◆",
+        })
+
+        # Build LangChain messages
+        lc_messages = []
+        for h in history[-20:]:
+            if h["role"] == "user":
+                lc_messages.append(HumanMessage(content=h["content"]))
+            elif h["role"] == "assistant":
+                lc_messages.append(AIMessage(content=h["content"]))
+        lc_messages.append(HumanMessage(content=stripped_msg))
+
+        accumulated = []
+        tool_calls_log = []
+
+        try:
+            from agents.base import cached_agent
+            try:
+                graph = cached_agent(agent_slug)
+            except Exception as e:  # noqa: BLE001
+                log.warning("agent %s not yet implemented — falling back to generalist: %s", agent_slug, e)
+                from agents.generalist import build as build_generalist
+                graph = build_generalist()
+
+            async for event in graph.astream_events({"messages": lc_messages}, version="v2"):
+                kind = event["event"]
+                if kind == "on_chat_model_stream":
+                    chunk = event["data"].get("chunk")
+                    if chunk and hasattr(chunk, "content") and isinstance(chunk.content, str) and chunk.content:
+                        if not getattr(chunk, "tool_call_chunks", None):
+                            accumulated.append(chunk.content)
+                            yield sse.event(sse.TOKEN, {"text": chunk.content})
+                elif kind == "on_tool_start":
+                    name = event.get("name", "unknown")
+                    args = event["data"].get("input", {})
+                    tool_calls_log.append({"name": name, "args": args})
+                    yield sse.event(sse.TOOL_START, {"name": name, "args": args})
+                elif kind == "on_tool_end":
+                    name = event.get("name", "unknown")
+                    raw = event["data"].get("output", "")
+                    output = getattr(raw, "content", None) or (raw if isinstance(raw, str) else str(raw))
+                    yield sse.event(sse.TOOL_END, {"name": name, "output": output[:2000]})
+
+                    # If the tool returned a structured artifact descriptor, forward it.
+                    if isinstance(output, str) and output.startswith("__ARTIFACT__"):
+                        try:
+                            payload = json.loads(output[len("__ARTIFACT__"):])
+                            yield sse.event(sse.ARTIFACT, payload)
+                        except Exception:
+                            pass
+        except Exception as e:  # noqa: BLE001
+            log.exception("chat stream failed")
+            yield sse.event(sse.ERROR, {"message": str(e)})
+
+        final = "".join(accumulated) or "(no response)"
+        _persist_message(session_id, "assistant", final, agent_slug=agent_slug,
+                         tool_calls=tool_calls_log or None)
+        # Update session agent_slug to the last-used one
+        with connect() as conn, conn.cursor() as cur:
+            cur.execute("UPDATE pehero.chat_sessions SET agent_slug = %s WHERE id = %s",
+                        (agent_slug, session_id))
+            conn.commit()
+        yield sse.event(sse.DONE, {"slug": agent_slug, "tools": len(tool_calls_log)})
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
+
+# ── Auth ─────────────────────────────────────────────────────────────
+
+@rt("/app/auth/signin", methods=["POST"])
+async def signin(request: Request):
+    form = await request.form()
+    email = (form.get("email") or "").strip().lower()
+    if "@" not in email:
+        return JSONResponse({"ok": False, "error": "invalid email"}, status_code=400)
+    set_user_email(request.session, email)
+    _ensure_user(request.session)
+    return JSONResponse({"ok": True, "email": email})
+
+
+@rt("/app/auth/signout", methods=["POST"])
+async def signout(request: Request):
+    clear_user(request.session)
+    return JSONResponse({"ok": True})
+
+
+# ── Debug ping (kept from Phase 0) ──────────────────────────────────
+
+@rt("/app/_debug/ping")
+def debug_ping():
+    try:
+        llm = default_llm()
+        out = llm.invoke("Reply with exactly the word: pong").content
+        return JSONResponse({"ok": True, "model": llm.model_name, "reply": out})
+    except Exception as e:  # noqa: BLE001
+        log.exception("ping failed")
+        return JSONResponse({"ok": False, "error": str(e)}, status_code=500)

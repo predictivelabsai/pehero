@@ -1,0 +1,21 @@
+:root { color-scheme: light; }
+
+html, body { background: #F7F6F1; }
+
+body { font-feature-settings: "ss01", "cv11"; }
+
+::selection { background: #1F5D43; color: #F7F6F1; }
+
+/* Subtle scroll reveal — elements with data-reveal become visible on scroll */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .7s ease, transform .7s ease;
+}
+[data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #EFEDE4; }
+::-webkit-scrollbar-thumb { background: #CFC8B4; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #1F5D43; }

@@ -1,0 +1,69 @@
+# docker-compose for Coolify deployment of pehero.fyi.
+#
+# Assumes external Postgres (pgvector-enabled) is reachable at DB_URL. Coolify
+# injects environment variables from the project settings and maps the service
+# to the configured domain.
+#
+# For a fully self-contained local bring-up, `docker compose --profile full up`
+# starts a pgvector-enabled Postgres alongside the app. In Coolify, leave the
+# `db` service out of the deployed compose or use the `app` profile only.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pehero:latest
+    restart: unless-stopped
+    environment:
+      # Injected by Coolify in production; .env fallback for local.
+      DB_URL: ${DB_URL}
+      XAI_API_KEY: ${XAI_API_KEY}
+      XAI_BASE_URL: ${XAI_BASE_URL:-https://api.x.ai/v1}
+      XAI_MODEL: ${XAI_MODEL:-grok-4-fast-reasoning}
+      XAI_AGENT_MODEL: ${XAI_AGENT_MODEL:-grok-4}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER:-local}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-384}
+      APP_ENV: ${APP_ENV:-prod}
+      APP_SECRET: ${APP_SECRET:-change-me}
+      PORT: 5057
+    ports:
+      - "5057:5057"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5057/app/_debug/ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    labels:
+      # Coolify reads these for routing at pehero.fyi.
+      - coolify.managed=true
+      - coolify.type=application
+      - coolify.port=5057
+      - coolify.domain=pehero.fyi
+    profiles: ["app", "full"]
+
+  # Optional local Postgres — pgvector image. Use with `docker compose --profile full up`.
+  # In production (Coolify), point DB_URL at the managed Postgres instead.
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pehero
+      POSTGRES_USER: pehero
+      POSTGRES_PASSWORD: pehero
+    ports:
+      - "5432:5432"
+    volumes:
+      - pehero_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "pehero", "-d", "pehero"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles: ["full"]
+
+volumes:
+  pehero_pg:
