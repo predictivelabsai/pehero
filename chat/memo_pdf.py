@@ -28,7 +28,6 @@ import uuid
 from pathlib import Path
 from typing import Optional
 
-import markdown2
 from fasthtml.common import (
     Html, Head, Body, Meta, Title, Link, Script, NotStr, Div, Span, H1, P, A,
 )
