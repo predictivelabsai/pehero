@@ -176,14 +176,4 @@
 .analytics-table-wrap { max-height: 280px; overflow-y: auto; }
 .analytics-error { padding: .75rem; background: #FBE6E2; color: var(--red); border: 1px solid var(--red); border-radius: .4rem; font-size: .8rem; }
 
-/* Bottom-nav links added to left pane */
-.bottom-nav { padding: .25rem; margin-top: .4rem; display: flex; flex-direction: column; gap: .15rem; }
-.bottom-nav-link {
-    display: flex; align-items: center; gap: .55rem;
-    padding: .4rem .5rem; font-size: .76rem; color: var(--ink-muted);
-    background: transparent; border-radius: .4rem; text-decoration: none;
-    transition: background .15s, color .15s;
-}
-.bottom-nav-link:hover { background: var(--bg-raise); color: var(--ink); }
-.bottom-nav-link.active { background: var(--accent-dim); color: var(--accent-deep); font-weight: 600; }
-.bottom-nav-icon { color: var(--accent); width: 1rem; text-align: center; }
+/* Bottom-nav rules moved to static/app.css so they apply on /app too. */
