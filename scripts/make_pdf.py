@@ -89,7 +89,7 @@ def _footer(canvas, doc):
     canvas.line(1.5 * cm, 1 * cm, SLIDE[0] - 1.5 * cm, 1 * cm)
     canvas.setFont("Helvetica", 8)
     canvas.setFillColor(INK_DIM)
-    canvas.drawString(1.5 * cm, 0.55 * cm, "PEHero · agentic AI for private equity")
+    canvas.drawString(1.5 * cm, 0.55 * cm, "PEHero · Your Private Equity AI Agent Squad")
     canvas.drawRightString(SLIDE[0] - 1.5 * cm, 0.55 * cm, f"{doc.page}")
     canvas.restoreState()
 
@@ -108,8 +108,8 @@ def _hero_slide(styles):
     return [
         Spacer(1, 40 * mm),
         Paragraph("PEHero", styles["hero"]),
-        Paragraph("Agentic AI for private equity deal teams.", styles["hero_sub"]),
-        Paragraph("22 specialist agents · pipeline kanban · LBO modeling · text-to-SQL analytics",
+        Paragraph("Your Private Equity AI Agent Squad.", styles["hero_sub"]),
+        Paragraph("Sourcing · underwriting · diligence · capital · portfolio operations",
                   styles["hero_sub"]),
         PageBreak(),
     ]
@@ -155,18 +155,18 @@ def _slide(styles, *, eyebrow: str, title: str, subtitle: str,
 
 def _agenda_slide(styles):
     rows = [
-        ["01", "Chat — 22 agents, SSE streaming, artifact side pane",
-         "triage, LBO, IC memo, VDR audit"],
-        ["02", "Pipeline — kanban across 10 deal stages",
-         "sector + ownership filters, click into deal"],
+        ["01", "Chat — your Private Equity AI Agent Squad on call",
+         "triage, LBO modelling, IC memo, VDR audit"],
+        ["02", "Pipeline — kanban across every deal stage",
+         "sector + ownership filters, click into a deal"],
         ["03", "Deal detail — brief on the right, chat in the centre",
-         "LTM, top customers, DD findings, LBO"],
-        ["04", "Analytics — text → SQL → Plotly chart",
+         "LTM, top customers, DD findings, LBO returns"],
+        ["04", "Analytics — ask in English, get a chart",
          "sector multiples, stage counts, LP mix"],
-        ["05", "Instructions — edit the 22 agent prompts",
-         "saves to prompts/system/*.md, hot-reloads"],
-        ["06", "Extensions — web search + Baltic registries",
-         "Tavily/EXA · LT, LV, EE business registries"],
+        ["05", "Instructions — tune how each specialist thinks",
+         "edit in-app, changes land on the next conversation"],
+        ["06", "Extensions — live web + local registries",
+         "sourcing beyond your CRM, Baltic registry lookups"],
     ]
     t = Table(rows, colWidths=[20 * mm, 130 * mm, 150 * mm])
     t.setStyle(TableStyle([
@@ -193,34 +193,34 @@ def _agenda_slide(styles):
 
 
 def _closing_slide(styles):
+    cta_body = ParagraphStyle(
+        "cta_body", parent=styles["body"], alignment=TA_CENTER, fontSize=15, leading=22,
+    )
+    cta_meta = ParagraphStyle(
+        "cta_meta", parent=styles["caption"], alignment=TA_CENTER, fontSize=11, leading=16,
+        textColor=INK_MUTED,
+    )
     return [
-        Spacer(1, 25 * mm),
-        Paragraph("Get PEHero running in 5 minutes".upper(), styles["eyebrow"]),
-        Paragraph("Local install", styles["title"]),
-        Spacer(1, 4 * mm),
-        Paragraph(
-            "<font face='Courier' size='11'>"
-            "git clone &lt;repo&gt; pehero &amp;&amp; cd pehero<br/>"
-            "cp .env.example .env       # fill DB_URL + XAI_API_KEY<br/>"
-            "pip install -r requirements.txt<br/>"
-            "python -m db.migrate<br/>"
-            "python -m synthetic.generate --seed 42<br/>"
-            "python main.py             # → http://localhost:5058"
-            "</font>",
-            styles["body"],
-        ),
+        Spacer(1, 35 * mm),
+        Paragraph("LET'S TALK", styles["eyebrow"]),
+        Paragraph("See PEHero on your deals.", ParagraphStyle(
+            "cta_title", parent=styles["title"], alignment=TA_CENTER, fontSize=38, leading=46,
+        )),
         Spacer(1, 6 * mm),
-        Paragraph("Deploy to Coolify (pehero.fyi)", styles["title"]),
         Paragraph(
-            "Coolify picks up docker-compose.yaml; set DB_URL and XAI_API_KEY and attach the "
-            "pehero.fyi domain. Seeding synthetic data is one docker compose exec away.",
-            styles["body"],
+            "Book a 20-minute walkthrough. We'll load one of your recent deals into "
+            "PEHero and show you the full agent flow — live.",
+            cta_body,
         ),
-        Spacer(1, 8 * mm),
+        Spacer(1, 10 * mm),
         Paragraph(
-            "All screenshots rendered against synthetic PE data — 40 companies, 960 months "
-            "of financials, 480 comps, 725 contracts, 60 LPs, 345 documents indexed in pgvector.",
-            styles["caption"],
+            "<b>hello@pehero.fyi</b> &nbsp;·&nbsp; pehero.fyi/contact",
+            cta_meta,
+        ),
+        Spacer(1, 2 * mm),
+        Paragraph(
+            "<i>Demo dataset uses synthetic PE data.</i>",
+            cta_meta,
         ),
         PageBreak(),
     ]
@@ -247,41 +247,41 @@ def build() -> None:
     story += _slide(
         styles,
         eyebrow="01 · Chat",
-        title="One chat, 22 specialists",
-        subtitle="Type a prefix or plain English — the router picks the right agent.",
+        title="One chat, every PE specialist",
+        subtitle="Type a prefix or plain English — PEHero picks the right agent.",
         bullets=[
-            "Left nav: sessions, the 22 agents by category, Pipeline / Instructions / Analytics links.",
-            "Centre: the transcript. Gemini-style contextual sample cards under the input.",
-            "Right: the artifact pane — tables, citations, memo previews stream in.",
-            "SSE streams tokens + tool calls with a live thinking indicator.",
+            "Left: your sessions, the full agent squad, and Pipeline / Instructions / Analytics.",
+            "Centre: the conversation. Contextual sample prompts appear right under the input.",
+            "Right: tables, citations, memo previews stream in as the agent works.",
+            "A live 'thinking' indicator shows what's happening behind the scenes.",
         ],
         screenshot="07-chat-empty.png",
-        caption="Empty chat + contextual sample cards",
+        caption="Empty chat with contextual prompts",
     )
     story += _slide(
         styles,
         eyebrow="01 · Chat",
         title="Deal Triage — go / no-go in 90 seconds",
-        subtitle="Prefix routing → triage: … returns a 3-bullet decision.",
+        subtitle="A quick decision backed by comps and market signals.",
         bullets=[
-            "`triage:` prefix goes straight to the Deal Triage Agent.",
-            "Calls search_companies, find_transaction_comps, fetch_market_signals.",
-            "Returns verdict, 3-bullet rationale, and a concrete next step.",
-            "'Next step — X' pattern surfaces a follow-up button to continue.",
+            "Type 'triage:' or describe the deal in plain English.",
+            "The agent pulls comparables and sector context on its own.",
+            "Returns a clear verdict, a three-bullet rationale, and a concrete next step.",
+            "'Next step — X' surfaces a follow-up button to keep the thread moving.",
         ],
         screenshot="08-chat-triage.png",
-        caption="Live triage on synthetic vertical-SaaS target",
+        caption="Live triage on a vertical-SaaS target",
     )
     story += _slide(
         styles,
         eyebrow="01 · Chat",
         title="LBO Model Builder",
-        subtitle="5-year model + sensitivity from one sentence of assumptions.",
+        subtitle="Full 5-year model and sensitivity from one sentence of assumptions.",
         bullets=[
-            "Normalizes LTM financials with QoE add-backs.",
-            "Projects revenue, margin, capex, interest, FCF, debt paydown.",
-            "Writes the run to pehero.lbo_models — Return Metrics reads it back.",
-            "Artifact: year-by-year table with MOIC + levered IRR.",
+            "Normalises seller financials with standard QoE add-backs.",
+            "Projects revenue, margin, capex, interest, free cash flow and debt paydown.",
+            "Returns IRR, MOIC and a value-creation bridge — kept on hand for re-use.",
+            "Year-by-year table appears in the right pane, editable by asking for changes.",
         ],
         screenshot="09-chat-lbo.png",
         caption="LBO built from a plain-English prompt",
@@ -290,28 +290,28 @@ def build() -> None:
         styles,
         eyebrow="01 · Chat",
         title="IC Memo Writer",
-        subtitle="Exec-ready memo straight from the deal's own data.",
+        subtitle="An investment-committee memo, drafted from the deal's own data.",
         bullets=[
-            "Pulls deal brief, LTM, LBO, debt stack, comps, DD findings.",
-            "Drafts full sections: Thesis, Market, Financials, VCP, Risks, Recommendation.",
-            "Every quantitative claim cites a tool call — no fabrication.",
-            "IC-length by default; configurable to a 1-page summary.",
+            "Pulls the deal brief, LTM financials, LBO model, debt stack, comps and findings.",
+            "Drafts full sections: thesis, market, financials, value-creation plan, risks, recommendation.",
+            "Every quantitative claim is sourced from the deal — no invented numbers.",
+            "IC length by default; ask for a one-pager and it re-writes accordingly.",
         ],
         screenshot="10-chat-memo.png",
-        caption="IC memo generated from synthetic data",
+        caption="IC memo generated from the deal data",
     )
 
     # ── Pipeline kanban ────────────────────────────────────────────
     story += _slide(
         styles,
         eyebrow="02 · Pipeline",
-        title="Kanban across 10 deal stages",
+        title="Kanban across every deal stage",
         subtitle="Sourced → Closed / Held / Exited — every live target on one board.",
         bullets=[
-            "Card = company with sector, LTM rev/EBITDA, ask EV + multiple.",
-            "Heat dot on each card reflects seller intent (cold/warm/hot).",
-            "Sector + ownership chips filter the board in a click.",
-            "Click a card → the deal detail page.",
+            "Each card shows sector, LTM revenue and EBITDA, ask EV and multiple.",
+            "A heat dot on the card reflects seller intent — cold, warm or hot.",
+            "Sector and ownership chips filter the board in a click.",
+            "Click a card to open the full deal workspace.",
         ],
         screenshot="11-pipeline-kanban.png",
         caption="Full pipeline kanban",
@@ -319,27 +319,27 @@ def build() -> None:
     story += _slide(
         styles,
         eyebrow="02 · Pipeline",
-        title="Filtered — software pipeline only",
-        subtitle="Narrow to a sector in one click; board re-groups by stage.",
+        title="Filter to what matters",
+        subtitle="Narrow to a sector or ownership type in one click.",
         bullets=[
-            "Filter chips: sector · ownership (founder / family / PE / VC / carve-out).",
-            "All cards update instantly without a page jump.",
-            "Great for mandate conversations: 'show me LMM software deals only'.",
-            "State is in the URL so the view is shareable.",
+            "Filter chips: sector, and ownership (founder, family, PE, VC, carve-out).",
+            "Cards update instantly without a page jump.",
+            "Perfect for mandate conversations — 'show me lower-mid-market software only'.",
+            "Filtered views are shareable with a single URL.",
         ],
         screenshot="12-pipeline-software.png",
-        caption="?sector=software",
+        caption="Pipeline filtered to software",
     )
     story += _slide(
         styles,
         eyebrow="03 · Deal detail",
         title="Every deal has its own workspace",
-        subtitle="Brief on the right, chat in the centre, artifacts stream in from tool calls.",
+        subtitle="Brief on the right, chat in the centre, artifacts stream in as the squad works.",
         bullets=[
-            "Right pane: HQ, LTM financials, top customers, DD findings, margin + multiple.",
-            "Centre: per-deal chat. Ask 'triage this', 'draft IC memo', 'show DD findings'.",
-            "Any agent can be invoked without leaving the deal.",
-            "New artifacts from tool calls land in the right pane alongside the brief.",
+            "Right pane: HQ, LTM financials, top customers, DD findings, margin and multiple.",
+            "Centre: per-deal chat. Ask 'triage this', 'draft the IC memo', 'show DD findings'.",
+            "Any specialist can be invoked without ever leaving the deal.",
+            "New artifacts from tool calls land alongside the brief as they arrive.",
         ],
         screenshot="13-pipeline-deal.png",
         caption="Single-deal workspace",
@@ -349,13 +349,13 @@ def build() -> None:
     story += _slide(
         styles,
         eyebrow="04 · Analytics",
-        title="Text → SQL → Plotly",
-        subtitle="Ask a PE question in English; get a guarded SELECT + a chart.",
+        title="Ask in English, get a chart",
+        subtitle="Analytics that read the same data your deal team does.",
         bullets=[
-            "LLM drafts a SELECT against the pehero schema; runs read-only.",
-            "Chart type, x/y, and title chosen automatically from the result shape.",
-            "8 curated sample questions seed the UI for first-time users.",
-            "SQL is shown under the chart — auditable + reproducible.",
+            "Natural-language questions run read-only against your deal data.",
+            "The right chart and title are picked automatically from the result.",
+            "Curated sample questions seed the experience for first-time users.",
+            "The underlying query is shown under every chart — fully auditable.",
         ],
         screenshot="15-analytics-stages.png",
         caption="Company count by deal stage",
@@ -364,45 +364,45 @@ def build() -> None:
         styles,
         eyebrow="04 · Analytics",
         title="Sector multiples over time",
-        subtitle="EV/EBITDA median by sector from pehero.market_signals.",
+        subtitle="Median EV/EBITDA by sector, rolling 24 months.",
         bullets=[
-            "pehero.market_signals holds 24 months × 6 sectors × 6 metrics.",
-            "Generates a grouped line chart with sector as the color dimension.",
-            "Answers 'what's happening to multiples in X' in three clicks.",
-            "Drops straight into the LP update / IC pre-read.",
+            "Market signals cover every sector and sub-sector you're tracking.",
+            "A grouped line chart, colour-coded by sector, appears in one click.",
+            "Answers 'what's happening to multiples in X' without opening a spreadsheet.",
+            "Drops straight into the LP update or IC pre-read.",
         ],
         screenshot="16-analytics-sector.png",
-        caption="EV/EBITDA median by sector",
+        caption="Median EV/EBITDA by sector",
     )
 
     # ── Instructions ───────────────────────────────────────────────
     story += _slide(
         styles,
         eyebrow="05 · Instructions",
-        title="Prompt editing, live",
-        subtitle="Every agent's system prompt is editable — from the same UI.",
+        title="Tune the squad, live",
+        subtitle="Every specialist's instructions are editable — from the same interface.",
         bullets=[
-            "22 agents + 1 shared PE glossary, each a markdown file.",
-            "Save writes to prompts/system/<slug>.md and clears the agent cache.",
-            "Next conversation picks up the new prompt — no restart needed.",
-            "Keeps the 'why does this agent behave this way' loop one click away.",
+            "Each role has its own set of instructions, plus a shared PE glossary.",
+            "Edits save in-place and take effect on the very next conversation.",
+            "No restarts. No deploys. Just change how the squad thinks and carry on.",
+            "Perfect for onboarding a partner's preferred memo style or diligence approach.",
         ],
         screenshot="17-instructions-list.png",
-        caption="All 22 agents, editable",
+        caption="The full squad, editable",
     )
     story += _slide(
         styles,
         eyebrow="05 · Instructions",
-        title="Editing the Deal Triage prompt",
-        subtitle="Workflow + tone + output format, all in markdown.",
+        title="Editing the Deal Triage instructions",
+        subtitle="Workflow, tone and output format — all in one view.",
         bullets=[
-            "Prompt lives in prompts/system/deal_triage.md — version controlled.",
-            "Edits go through a simple POST to /app/instructions/<slug>.",
-            "The shared PE glossary (pe_context.md) is prepended to every agent prompt.",
-            "Perfect for onboarding a new partner's preferred memo style.",
+            "Rewrite a specialist's instructions the way you'd brief a new associate.",
+            "Shared PE context is applied automatically so you don't repeat yourself.",
+            "Versioned alongside the product so changes are auditable.",
+            "Great for encoding your house style once and letting it apply everywhere.",
         ],
         screenshot="18-instructions-edit.png",
-        caption="Editing an agent's system prompt",
+        caption="Editing a specialist's instructions",
     )
 
     story += _closing_slide(styles)

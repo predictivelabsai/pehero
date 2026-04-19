@@ -4,7 +4,7 @@ Agentic AI for private equity — 22 specialist agents that source, underwrite, 
 
 ![PEHero product tour](docs/pehero.gif)
 
-A [15-slide product tour PDF](docs/pehero-product-tour.pdf) is also included.
+Product tour as a shareable deck — [PDF](docs/pehero-product-tour.pdf) · [PPTX](docs/pehero-product-tour.pptx).
 
 
 - **Marketing landing** at `/` with hero, agent directory, how-it-works, pricing.

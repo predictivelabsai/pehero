@@ -108,7 +108,7 @@ def platform():
                     P(v, cls="text-ink leading-relaxed"),
                     cls="p-7 rounded-2xl bg-bg-elevated border border-line h-full",
                 ) for (k, v) in [
-                    ("Agents", "22 LangGraph ReAct agents, one per specialty, sharing a common tool registry and prompt library."),
+                    ("Squad", "A full squad of specialist agents, one per role, sharing a common tool registry and prompt library."),
                     ("Tools", "70+ StructuredTools that read cap tables, financials, VDR PDFs, and sector comps directly — not through copy-paste."),
                     ("RAG", "Postgres + pgvector index of every CIM, QoE, MSA, legal DD memo, ESG assessment, and industry report in your deal."),
                     ("Memory", "Every conversation and every artifact persists, queryable across agents, so Week 3 of diligence still knows what Week 1 agreed."),
@@ -128,7 +128,7 @@ def agents_page():
     return page(
         "Agents",
         Section_(
-            Eyebrow("22 specialist agents"),
+            Eyebrow("Your Private Equity AI Agent Squad"),
             Heading(1, "Every role already wired in.", cls="mt-4 max-w-4xl"),
             P(
                 "Each agent has a narrow remit, deep tooling, and a prefix you can type in the chat "
@@ -152,7 +152,7 @@ def agent_detail(slug: str):
             "Agent not found",
             Section_(
                 H1("Not found", cls="text-ink text-3xl"),
-                P("No agent at that URL. See all ", A("22 agents", href="/agents", cls="text-accent underline"), ".",
+                P("No agent at that URL. See the ", A("full squad", href="/agents", cls="text-accent underline"), ".",
                   cls="text-ink-muted mt-4"),
             ),
             current_path="/agents",
@@ -260,9 +260,9 @@ def pricing():
             "name": "Pilot",
             "price": "$0",
             "sub": "for 30 days",
-            "blurb": "One associate, one deal, all 22 agents, synthetic + your own data.",
+            "blurb": "One associate, one deal, the full squad, synthetic + your own data.",
             "features": [
-                "All 22 agents",
+                "Full squad of specialists",
                 "1 concurrent user",
                 "Up to 5 live deals",
                 "Synthetic PE dataset included",
@@ -277,7 +277,7 @@ def pricing():
             "sub": "per fund",
             "blurb": "Fund actively deploying capital with 5-25 investment professionals.",
             "features": [
-                "All 22 agents",
+                "Full squad of specialists",
                 "Up to 25 seats",
                 "Unlimited deals + portcos",
                 "SSO + audit log",

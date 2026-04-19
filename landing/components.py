@@ -200,7 +200,9 @@ def Section_(*content, bleed: bool = False, cls: str = ""):
 
 def Hero():
     headline = (
-        Span("22 specialist agents "),
+        Span("Your Private Equity "),
+        Span("AI Agent Squad", cls="text-accent"),
+        Span(" — "),
         Span("sourcing, ", cls="text-accent"),
         Span("underwriting, "),
         Span("and closing ", cls="text-accent"),
@@ -222,7 +224,7 @@ def Hero():
                 P(lede, cls="mt-6 md:mt-8 text-base md:text-xl text-ink-muted max-w-2xl leading-relaxed"),
                 Div(
                     Button_("Open the app", href="/app", primary=True),
-                    Button_("Meet the 22 agents", href="/agents", primary=False),
+                    Button_("Meet the squad", href="/agents", primary=False),
                     cls="mt-8 md:mt-10 flex items-center gap-3 flex-wrap",
                 ),
                 cls="relative z-30 max-w-7xl mx-auto px-5 md:px-6 py-24 md:py-0",
@@ -231,7 +233,7 @@ def Hero():
         ),
         Div(
             Div(
-                _StatCell("22", "specialist agents"),
+                _StatCell("Squad", "of PE specialists, on call"),
                 _StatCell("5", "workflow stages, end-to-end"),
                 _StatCell("<90s", "to a go / no-go decision"),
                 _StatCell("$0", "to try with synthetic data"),
@@ -266,13 +268,17 @@ def ProductTour():
                 title="Open the README",
             ),
             Div(
+                A(Span("Product tour (PDF)"), Span("↓", cls="ml-1"),
+                  href="/docs/pehero-product-tour.pdf",
+                  cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
+                Span("·", cls="text-ink-dim mx-3"),
+                A(Span("Product tour (PPTX)"), Span("↓", cls="ml-1"),
+                  href="/docs/pehero-product-tour.pptx",
+                  cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
+                Span("·", cls="text-ink-dim mx-3"),
                 A(Span("View README"), Span("→", cls="ml-1"),
                   href="https://github.com/predictivelabsai/pehero#readme",
                   target="_blank", rel="noopener",
-                  cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
-                Span("·", cls="text-ink-dim mx-3"),
-                A(Span("Download product tour (PDF)"), Span("↓", cls="ml-1"),
-                  href="/docs/pehero-product-tour.pdf",
                   cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
                 Span("·", cls="text-ink-dim mx-3"),
                 A(Span("Open the app"), Span("→", cls="ml-1"),
