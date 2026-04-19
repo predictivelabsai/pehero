@@ -105,3 +105,78 @@ Cookies via Starlette's `SessionMiddleware`. Helpers in `utils/session.py`: `get
 - When you rename or add an agent slug, remember: module path (`agents/<category>/<slug>.py`) must match, `prompts/system/<slug>.md` must exist, and the router's `_best_in_category_for` + `CATEGORY_HINTS` keyword maps might need updating too.
 - When you add a UI rule used on `/app`, put the CSS in `static/app.css`, not `static/pipeline.css` — the latter isn't loaded on the base chat route.
 - Favicon lives in `static/favicon.{svg,png,ico}` + `apple-touch-icon.png`. `landing.components._favicon_links()` renders the `<link>`s; `chat/layout.py` and the three sub-page `_head()` helpers (`pipeline.py`, `instructions.py`, `analytics.py`) all import and splat it.
+
+## Pre-commit / pre-push checks
+
+**Always run this block before `git commit` / `git push` — production has already gone down once because a dev-only install was missed:**
+
+```bash
+# 1. Every new third-party import must be reachable from requirements.txt.
+#    Whenever a commit adds a non-stdlib, non-internal import, confirm the
+#    top-level package is either pinned directly or a transitive dep of a
+#    pinned package. The Coolify image runs a clean
+#    `pip install -r requirements.txt`; anything installed locally via
+#    `uv pip install` but not pinned will crash the container at startup
+#    (and the site will just 404 because app.py imports chat modules
+#    eagerly).
+.venv/bin/python -c "
+import ast, pathlib, re, sys
+from importlib.metadata import packages_distributions, requires
+ROOT = pathlib.Path('.')
+
+# Direct deps from requirements.txt (distribution names, lower-case).
+req = (ROOT / 'requirements.txt').read_text()
+direct = set()
+for line in req.splitlines():
+    line = line.strip()
+    if not line or line.startswith('#'): continue
+    name = re.split(r'[\\[<>=~!]', line, 1)[0].strip().lower()
+    if name: direct.add(name)
+
+def norm(s): return re.sub(r'[-_.]+', '-', s).lower()
+
+# Walk the dep graph to build the set of distributions actually reachable
+# from a fresh pip install -r requirements.txt.
+reachable = set()
+def expand(pkg):
+    n = norm(pkg)
+    if n in reachable: return
+    reachable.add(n)
+    try:
+        for r in (requires(pkg) or []):
+            dep = re.split(r'[\\[<>=~!; ]', r, 1)[0].strip()
+            if dep: expand(dep)
+    except Exception: pass
+for p in direct: expand(p)
+
+# Map top-level import name → distribution name(s) on this machine.
+dists = {k: [norm(d) for d in v] for k, v in packages_distributions().items()}
+INTERNAL = {'agents','app','chat','db','landing','prompts','rag','scripts','static','synthetic','tests','tools','utils'}
+stdlib = set(sys.stdlib_module_names)
+missing = set()
+for p in ROOT.rglob('*.py'):
+    if any(x in str(p) for x in ('.venv','__pycache__','.git','screenshots')): continue
+    tree = ast.parse(p.read_text())
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names = [n.name.split('.')[0] for n in node.names]
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            names = [node.module.split('.')[0]]
+        else: continue
+        for top in names:
+            if top in stdlib or top in INTERNAL: continue
+            candidates = set(dists.get(top, [norm(top)]))
+            if not candidates & reachable:
+                missing.add(f'{top}  ({p})')
+print('OK' if not missing else 'MISSING FROM requirements.txt:\\n' + '\\n'.join(sorted(missing)))
+"
+
+# 2. Smoke tests still green.
+pytest -q tests/test_agents_smoke.py
+
+# 3. Offline boot check — every route module that app.py imports at
+#    startup must import cleanly with only what's installed.
+.venv/bin/python -c "from app import app; from chat import routes, pipeline, instructions, analytics, memo_pdf; print('app imports OK')"
+```
+
+Only push once all three pass. If you added a new dependency, pin it with a lower bound (`pkg>=X.Y.0`) in `requirements.txt` in the same commit that introduces the import.
