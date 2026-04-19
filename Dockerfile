@@ -1,40 +1,27 @@
-# syntax=docker/dockerfile:1.7
-FROM python:3.13-slim AS base
+FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
-
-# Build deps for psycopg binary, pgvector, fastembed, reportlab (image libs).
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        build-essential \
-        libpq-dev \
-        curl \
-        ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    FASTEMBED_CACHE_DIR=/opt/fastembed-cache \
+    PORT=5057
 
 WORKDIR /app
 
-# Deps layer — copy only requirements first so deps are cached across code edits.
-COPY requirements.txt ./
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the fastembed ONNX model so cold-start in prod doesn't fetch
-# over the network (speeds up the first RAG call to ~200ms).
-RUN python - <<'PY'
-from fastembed import TextEmbedding
-TextEmbedding("BAAI/bge-small-en-v1.5")
-print("fastembed model cached")
-PY
+# Pre-download the default fastembed model so first request isn't slow.
+RUN mkdir -p "$FASTEMBED_CACHE_DIR" && \
+    python -c "from fastembed import TextEmbedding; TextEmbedding(model_name='BAAI/bge-small-en-v1.5', cache_dir='$FASTEMBED_CACHE_DIR')"
 
-# App code
 COPY . .
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 5057
 
-# Coolify health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -fsS http://localhost:5057/app/_debug/ping || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5057/').read()"
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["python", "main.py"]

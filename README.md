@@ -27,20 +27,24 @@ End-to-end test: `pytest -q tests/`.
 ## Running in Docker (local)
 
 ```bash
-docker compose --profile full up --build   # app + pgvector-enabled Postgres
+DB_URL=... XAI_API_KEY=... docker compose up --build
+```
+
+On boot, the container runs `python -m db.migrate` automatically (idempotent).
+Seed synthetic data once with:
+
+```bash
+docker compose exec web python -m synthetic.generate --seed 42
 ```
 
 ## Deploying to Coolify (pehero.fyi)
 
-1. Point Coolify at this repo; pick the "Docker Compose" build type.
-2. Select the `app` profile so only the app service is deployed.
-3. Set the following environment variables in Coolify:
+1. Point Coolify at this repo (Docker Compose build type).
+2. Set environment variables in Coolify:
    - `DB_URL` — managed Postgres with pgvector enabled
    - `XAI_API_KEY`
-   - `APP_SECRET` (random 32-char string)
-   - `EMBEDDING_PROVIDER=local` (default) or `openai` with `OPENAI_API_KEY`
-4. Map the container port `5057` and attach the `pehero.fyi` domain.
-5. One-off job (or included in app startup): `python -m db.migrate && python -m synthetic.generate --seed 42 --fresh` to populate the schemas.
+3. Attach the `pehero.fyi` domain (port 5057).
+4. First deploy only: `docker compose exec web python -m synthetic.generate --seed 42` from Coolify's terminal to populate synthetic data. Subsequent deploys re-run `db.migrate` automatically and leave your data in place.
 
 ## Directory layout
 

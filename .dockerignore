@@ -1,19 +1,33 @@
-.venv/
-.git/
-.github/
-.pytest_cache/
-.playwright-mcp/
-__pycache__/
-*.pyc
-*.pyo
+.git
+.gitignore
+.venv
 .env
 .env.local
-.env.*.local
-screenshots/
-docs/*.pdf
-docs/*.gif
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.playwright-mcp
+.claude
+
+# Dev / demo artifacts that aren't needed at runtime
+screenshots
+docs
+tests
+
+# IDE
+.vscode
+.idea
+
+# OS
 .DS_Store
-tests/
-scripts/capture_screenshots.py
-scripts/make_gif.py
-scripts/make_pdf.py
+Thumbs.db
+
+# Logs
+*.log
+
+# Coolify / deploy artifacts
+*.coolify
