@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     FASTEMBED_CACHE_DIR=/opt/fastembed-cache \
-    PORT=5057
+    PORT=5058
 
 WORKDIR /app
 
@@ -18,10 +18,10 @@ RUN mkdir -p "$FASTEMBED_CACHE_DIR" && \
 COPY . .
 RUN chmod +x docker-entrypoint.sh
 
-EXPOSE 5057
+EXPOSE 5058
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5057/').read()"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5058/').read()"
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["python", "main.py"]

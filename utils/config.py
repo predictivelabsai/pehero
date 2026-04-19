@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     app_env: str = Field(default="dev", alias="APP_ENV")
     app_secret: str = Field(default="change-me", alias="APP_SECRET")
-    port: int = Field(default=5057, alias="PORT")
+    port: int = Field(default=5058, alias="PORT")
 
 
 @lru_cache(maxsize=1)

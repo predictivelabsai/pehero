@@ -18,10 +18,10 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python -m db.migrate                    # creates pehero + pehero_rag schemas
 python -m synthetic.generate --seed 42  # populate OLTP + RAG (~1 min)
-python main.py                          # serves on :5057
+python main.py                          # serves on :5058
 ```
 
-Smoke test: `curl http://localhost:5057/app/_debug/ping` → `{"ok": true, "reply": "pong"}`.
+Smoke test: `curl http://localhost:5058/app/_debug/ping` → `{"ok": true, "reply": "pong"}`.
 End-to-end test: `pytest -q tests/`.
 
 ## Running in Docker (local)
@@ -43,7 +43,7 @@ docker compose exec web python -m synthetic.generate --seed 42
 2. Set environment variables in Coolify:
    - `DB_URL` — managed Postgres with pgvector enabled
    - `XAI_API_KEY`
-3. Attach the `pehero.fyi` domain (port 5057).
+3. Attach the `pehero.fyi` domain (port 5058).
 4. First deploy only: `docker compose exec web python -m synthetic.generate --seed 42` from Coolify's terminal to populate synthetic data. Subsequent deploys re-run `db.migrate` automatically and leave your data in place.
 
 ## Directory layout

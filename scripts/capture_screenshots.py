@@ -1,11 +1,11 @@
 """Capture a tour of the PEHero app into ./screenshots.
 
 The script drives a real browser via Playwright against a locally-running
-PEHero server (default http://localhost:5057). It produces a deterministic
+PEHero server (default http://localhost:5058). It produces a deterministic
 set of frames for `make_gif.py` and `make_pdf.py`.
 
 Usage:
-    # server already running on :5057
+    # server already running on :5058
     python -m scripts.capture_screenshots
 """
 
@@ -23,7 +23,7 @@ log = logging.getLogger("capture")
 ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "screenshots"
 
-BASE_URL = os.environ.get("PEHERO_URL", "http://localhost:5057")
+BASE_URL = os.environ.get("PEHERO_URL", "http://localhost:5058")
 VIEWPORT = {"width": 1400, "height": 900}
 
 
