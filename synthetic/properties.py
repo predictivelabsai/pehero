@@ -132,15 +132,57 @@ def _ask_multiple(sector: str, growth: float, margin: float, rng: random.Random)
     return round(max(5.0, base + growth_premium + margin_premium + noise), 2)
 
 
+ANCHORS = [
+    # (slug, name, sector, sub_sector, revenue, margin, growth, ownership, deal_stage, deal_type, hq_city, hq_state, country, founded, employees)
+    ("northwind-systems",   "Northwind Systems",   "software",   "Vertical SaaS",
+     62_000_000, 26.0, 22.0, "founder", "diligence", "platform",
+     "Austin", "TX", "USA", 2011, 280),
+    ("meridian-healthcare", "Meridian Healthcare", "healthcare", "Specialty Physician Practices",
+     128_000_000, 17.0, 11.0, "family",  "ic",        "platform",
+     "Nashville", "TN", "USA", 2004, 640),
+]
+
+
 def generate(seed: int = 42) -> list[dict]:
     rng = random.Random(seed)
     specs: list[CompanySpec] = []
     slug_counter: dict[str, int] = {}
+    reserved_names: set[str] = set()
 
     def next_slug(base: str) -> str:
         slug_counter[base] = slug_counter.get(base, 0) + 1
         n = slug_counter[base]
         return base if n == 1 else f"{base}-{n}"
+
+    # ── Deterministic anchors first — example prompts in registry.py
+    # reference "Meridian Healthcare" / "Northwind Systems" by name. Without
+    # these two rows the IC memo / triage agents fail to resolve the company
+    # when a user runs the canned prompt. ────────────────────────────────
+    for (slug, name, sector, sub_sector, revenue, margin, growth,
+         ownership, deal_stage, deal_type,
+         city, state, country, founded, employees) in ANCHORS:
+        ebitda = round(revenue * margin / 100, 0)
+        ask_mult = _ask_multiple(sector, growth, margin, rng)
+        ev = round(ebitda * ask_mult, 0)
+        descr = (
+            f"{name} is a {sub_sector.lower()} business headquartered in {city}"
+            + (f", {state}" if state else "")
+            + f", founded in {founded}. LTM revenue €{revenue/1_000_000:.0f}M, "
+            f"{margin:.0f}% EBITDA margin, growing {growth:.0f}% YoY. "
+            f"{ownership.replace('_', ' ')}-owned; currently {deal_stage}."
+        )
+        specs.append(CompanySpec(
+            slug=slug, name=name, hq_city=city, hq_state=state, country=country,
+            sector=sector, sub_sector=sub_sector,
+            website=slug.replace("-", "") + ".com",
+            founded_year=founded, employees=employees,
+            revenue_ltm=revenue, ebitda_ltm=ebitda, ebitda_margin=margin,
+            growth_rate=growth, ownership=ownership, deal_stage=deal_stage,
+            deal_type=deal_type, enterprise_value=ev, ask_multiple=ask_mult,
+            description=descr, seller_intent="warm",
+        ))
+        slug_counter[slug] = 1
+        reserved_names.add(name)
 
     for sector, count, sub_sectors, rev_range, margin_range, growth_range in SECTOR_MIX:
         for _ in range(count):

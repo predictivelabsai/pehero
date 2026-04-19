@@ -33,7 +33,12 @@ class Settings(BaseSettings):
     lt_vmi_api_key: str = Field(default="", alias="LT_VMI_API_KEY")
     lv_ur_api_key: str = Field(default="", alias="LV_UR_API_KEY")
     lv_vid_api_key: str = Field(default="", alias="LV_VID_API_KEY")
+    # Estonia Äriregister uses SOAP with username + password (issued by RIK).
+    # EE_ARI_API_KEY is kept for back-compat / stub detection; prefer the
+    # EE_ARI_USERNAME + EE_ARI_PASSWORD pair for the real SOAP endpoint.
     ee_ari_api_key: str = Field(default="", alias="EE_ARI_API_KEY")
+    ee_ari_username: str = Field(default="", alias="EE_ARI_USERNAME")
+    ee_ari_password: str = Field(default="", alias="EE_ARI_PASSWORD")
     ee_emta_api_key: str = Field(default="", alias="EE_EMTA_API_KEY")
 
     app_env: str = Field(default="dev", alias="APP_ENV")

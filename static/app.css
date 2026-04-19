@@ -283,6 +283,30 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .thinking-indicator .secs { color: var(--ink-dim); }
 @keyframes pulse { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1); } }
 
+/* ── Memo preview / PDF iframe in right pane ──────────────────── */
+.memo-preview-row {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;
+    margin-top: .5rem; padding: .55rem .75rem;
+    background: var(--accent-dim); border: 1px solid var(--accent);
+    border-radius: .55rem; align-self: flex-start; max-width: 100%;
+}
+.memo-preview-btn {
+    padding: .35rem .85rem; border-radius: .4rem; font-size: .75rem;
+    background: var(--accent); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600;
+}
+.memo-preview-btn:hover { background: var(--ink); }
+.memo-preview-btn:disabled { opacity: .6; cursor: wait; }
+.memo-preview-hint { color: var(--ink-muted); font-size: .7rem; line-height: 1.4; flex: 1 1 200px; }
+
+.pdf-wrap { display: flex; flex-direction: column; height: 100%; min-height: 560px; }
+.pdf-caption { font-size: .7rem; color: var(--ink-dim); padding: .2rem .25rem .55rem; font-family: 'JetBrains Mono', monospace; }
+.pdf-caption i { font-style: italic; color: var(--accent); }
+.pdf-iframe {
+    flex: 1; width: 100%; min-height: 560px;
+    border: 1px solid var(--line); border-radius: .5rem; background: #fff;
+}
+
 /* ── Follow-up ("Should we do that?") row ─────────────────────── */
 .followup-row {
     display: flex; align-items: center; gap: .55rem;
@@ -322,6 +346,33 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .cfg-chip.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
 .cfg-sym { font-size: .78rem; font-weight: 600; }
 .cfg-code { font-size: .62rem; letter-spacing: .04em; }
+
+.cfg-integrations-toggle {
+    width: 100%; margin-top: .65rem; padding: .35rem .4rem;
+    display: flex; align-items: center; gap: .4rem;
+    background: transparent; border: none; cursor: pointer; color: var(--ink);
+    font-size: .72rem; font-weight: 500; border-radius: .35rem;
+    transition: background .15s;
+}
+.cfg-integrations-toggle:hover { background: var(--bg-raise); }
+.cfg-arrow { color: var(--ink-dim); font-size: .62rem; transition: transform .2s; }
+.cfg-integrations-toggle.open .cfg-arrow { transform: rotate(90deg); }
+.cfg-count { margin-left: auto; color: var(--ink-dim); font-size: .62rem; font-family: 'JetBrains Mono', monospace; }
+
+.integration-list { display: none; padding: .15rem .2rem .35rem; }
+.integration-list.open { display: block; }
+.integration-row {
+    display: flex; align-items: center; gap: .4rem;
+    padding: .3rem .4rem; border-radius: .3rem; font-size: .68rem;
+    color: var(--ink-muted);
+}
+.integration-row:hover { background: var(--bg-raise); }
+.integration-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line-br); flex-shrink: 0; }
+.integration-dot.ok { background: var(--accent); }
+.integration-name { flex: 1; color: var(--ink); font-weight: 500; }
+.integration-note { color: var(--ink-dim); font-size: .58rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .06em; }
+.integration-status { color: var(--ink-dim); font-size: .58rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-left: .3rem; }
+.integration-status.ok { color: var(--accent); }
 
 /* ── Left pane bottom-nav (Pipeline / Instructions / Analytics) ── */
 .bottom-nav { padding: .25rem; margin-top: .4rem; display: flex; flex-direction: column; gap: .15rem; }

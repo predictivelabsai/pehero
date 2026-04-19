@@ -7,9 +7,14 @@ from tools.properties import get_property, search_properties
 from tools.capital import deal_brief
 from tools.rag import retrieve_documents
 from tools.market import find_sales_comps, fetch_market_signals
+from tools.baltic import baltic_lookup, baltic_tax_status
 
 SPEC = AGENTS_BY_SLUG["investor_memo"]
-TOOLS = [get_property, search_properties, deal_brief, retrieve_documents, find_sales_comps, fetch_market_signals]
+TOOLS = [
+    get_property, search_properties, deal_brief, retrieve_documents,
+    find_sales_comps, fetch_market_signals,
+    baltic_lookup, baltic_tax_status,
+]
 
 
 @lru_cache(maxsize=1)

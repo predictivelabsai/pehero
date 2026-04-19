@@ -60,11 +60,19 @@ def lookup_lt(name_or_code: str) -> dict[str, Any]:
     data = _rc_get("/companies", params={"q": name_or_code})
     if data:
         return data
+    # No free REST endpoint for individual company lookup exists in LT. The
+    # open-data portal (https://www.registrucentras.lt/atviri_duomenys/) only
+    # offers bulk downloads. Live, per-company lookup requires a contract
+    # with Registrų centras and an API key (LT_CR_API_KEY). See
+    # docs/registry_integration.md for the full setup path.
     return {
         "stub": True,
         "country": "LT",
         "query": name_or_code,
-        "reason": "Set LT_CR_API_KEY and replace stub in tools/registry/lt.py.",
+        "reason": ("Live per-company lookup in Lithuania requires a Registrų "
+                   "centras contract + LT_CR_API_KEY. Set the key and re-try, "
+                   "or use the bulk Atviri Duomenys download for backfill. See "
+                   "docs/registry_integration.md."),
     }
 
 

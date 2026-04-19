@@ -127,8 +127,10 @@ def sessions_list(sessions: list[dict], current_sid: str = ""):
 
 
 def _config_section(current_currency: str = "EUR"):
-    """Configuration: currency selector (EUR default) + anything else down the line."""
+    """Configuration: currency selector (EUR default) + Integrations submenu."""
     from utils.session import CURRENCIES, SYMBOLS
+    from utils.config import settings
+
     pills = []
     for c in CURRENCIES:
         active = c == current_currency
@@ -138,11 +140,50 @@ def _config_section(current_currency: str = "EUR"):
             cls=f"cfg-chip{' active' if active else ''}",
             onclick=f"setCurrency({c!r})",
         ))
+
+    s = settings()
+    integrations = [
+        ("EE", "Estonia", "Äriregister", bool(s.ee_ari_api_key), "public endpoint"),
+        ("EE", "Estonia", "EMTA (tax)",  bool(s.ee_emta_api_key), None),
+        ("LT", "Lithuania", "Registrų centras", bool(s.lt_cr_api_key), "public atviri duomenys"),
+        ("LT", "Lithuania", "VMI (tax)",  bool(s.lt_vmi_api_key), None),
+        ("LV", "Latvia",   "UR",         bool(s.lv_ur_api_key), None),
+        ("LV", "Latvia",   "VID (tax)",  bool(s.lv_vid_api_key), None),
+        ("",   "Web",      "Tavily",     bool(s.tavily_api_key), "default"),
+        ("",   "Web",      "EXA",        bool(s.exa_api_key), "fallback"),
+    ]
+    integration_rows = []
+    for flag, country, name, connected, note in integrations:
+        status_cls = "ok" if connected else (" fallback" if note else " off")
+        dot = Span(cls=f"integration-dot {'ok' if connected else ''}")
+        label_text = f"{flag} {name}" if flag else name
+        note_el = Span(note, cls="integration-note") if note else Span("", cls="integration-note")
+        integration_rows.append(Div(
+            dot,
+            Span(label_text, cls="integration-name"),
+            note_el,
+            Span("connected" if connected else "off",
+                 cls=f"integration-status{' ok' if connected else ''}"),
+            cls="integration-row",
+        ))
+
     return Div(
+        # Currency block
         Div(Span("Currency", cls="cfg-label"),
             Span("affects agents + displays", cls="cfg-help"),
             cls="cfg-row"),
         Div(*pills, cls="cfg-pills"),
+        # Integrations submenu
+        Button(
+            Span("▸", cls="cfg-arrow"),
+            Span("Integrations", cls="cfg-label"),
+            Span(f"{sum(1 for i in integrations if i[3])}/{len(integrations)}",
+                 cls="cfg-count"),
+            cls="cfg-integrations-toggle",
+            onclick="toggleGroup('integrations-list')",
+            id="btn-integrations-list",
+        ),
+        Div(*integration_rows, cls="integration-list", id="integrations-list"),
         cls="config-section",
     )
 
