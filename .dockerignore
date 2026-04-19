@@ -15,8 +15,10 @@ __pycache__
 
 # Dev / demo artifacts that aren't needed at runtime
 screenshots
-docs
 tests
+
+# docs/ is bundled — the landing page serves docs/pehero.gif and
+# docs/pehero-product-tour.pdf. Keep them in the image.
 
 # IDE
 .vscode

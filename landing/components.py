@@ -242,6 +242,49 @@ def Hero():
     )
 
 
+def ProductTour():
+    """Rotating GIF preview + CTA into the app / README / PDF tour."""
+    return Section(
+        Div(
+            Div(
+                Eyebrow("Product tour"),
+                Heading(2, "See it in motion.", cls="mt-3 max-w-3xl mb-2"),
+                P("A 30-second walk through chat, the pipeline kanban, deal detail, "
+                  "analytics and prompt editing — captured from the running app against "
+                  "synthetic PE data.",
+                  cls="mt-2 text-ink-muted text-base max-w-2xl leading-relaxed mb-6"),
+                cls="mb-6",
+            ),
+            A(
+                Img(src="/docs/pehero.gif",
+                    alt="PEHero product tour — chat, pipeline, analytics",
+                    cls="block w-full h-auto rounded-2xl border border-line shadow-[0_8px_40px_rgba(0,0,0,0.06)]",
+                    loading="lazy"),
+                href="https://github.com/predictivelabsai/pehero#readme",
+                target="_blank", rel="noopener",
+                cls="block rounded-2xl overflow-hidden hover:opacity-95 transition-opacity",
+                title="Open the README",
+            ),
+            Div(
+                A(Span("View README"), Span("→", cls="ml-1"),
+                  href="https://github.com/predictivelabsai/pehero#readme",
+                  target="_blank", rel="noopener",
+                  cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
+                Span("·", cls="text-ink-dim mx-3"),
+                A(Span("Download product tour (PDF)"), Span("↓", cls="ml-1"),
+                  href="/docs/pehero-product-tour.pdf",
+                  cls="inline-flex items-center gap-2 text-sm text-accent hover:text-ink"),
+                Span("·", cls="text-ink-dim mx-3"),
+                A(Span("Open the app"), Span("→", cls="ml-1"),
+                  href="/app",
+                  cls="inline-flex items-center gap-2 text-sm text-ink hover:text-accent"),
+                cls="mt-5 flex items-center flex-wrap gap-y-2",
+            ),
+            cls="max-w-7xl mx-auto px-5 md:px-6 py-14 md:py-20 border-t border-line",
+        ),
+    )
+
+
 def _StatCell(value: str, caption: str):
     return Div(
         Span(value, cls="text-2xl md:text-3xl font-medium tracking-tighter text-ink"),

@@ -2,6 +2,11 @@
 
 Agentic AI for private equity — 22 specialist agents that source, underwrite, close, and operate your deals.
 
+![PEHero product tour](docs/pehero.gif)
+
+A [15-slide product tour PDF](docs/pehero-product-tour.pdf) is also included.
+
+
 - **Marketing landing** at `/` with hero, agent directory, how-it-works, pricing.
 - **3-pane chat app** at `/app` with left agent/session browser, centre chat, right artifact pane.
 - **22 LangGraph ReAct agents** across deal sourcing, LBO underwriting, due diligence, capital/LP, and portfolio operations — routed by prefix (`triage:`, `lbo:`, `memo:`…) or by keyword heuristics with an LLM fallback classifier.

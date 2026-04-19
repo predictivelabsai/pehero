@@ -9,7 +9,7 @@ from fasthtml.common import (
 from app import rt
 from agents.registry import AGENTS, AGENTS_BY_CATEGORY, AGENTS_BY_SLUG, CATEGORIES
 from landing.components import (
-    page, Hero, CategoryPillar, AgentCard, CategorySection, CaseStudyStrip, CTASection,
+    page, Hero, ProductTour, CategoryPillar, AgentCard, CategorySection, CaseStudyStrip, CTASection,
     Eyebrow, Heading, Body_, Button_, Pill, Section_, SITE_NAME, SITE_TAGLINE,
 )
 
@@ -58,6 +58,7 @@ def home():
     return page(
         "Agentic AI for private equity",
         Hero(),
+        ProductTour(),
         pillars,
         how,
         CaseStudyStrip(),

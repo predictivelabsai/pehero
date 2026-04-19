@@ -14,21 +14,25 @@ ROOT = Path(__file__).resolve().parents[1]
 SHOTS = ROOT / "screenshots"
 OUT_GIF = ROOT / "docs" / "pehero.gif"
 
+# App-focused tour. Skips landing pages by design — the GIF lives on the
+# landing page; no point showing the landing in it.
 FRAMES = [
-    ("01-home-full.png",           2800),
-    ("02-platform-full.png",       2400),
-    ("03-agents-full.png",         2800),
-    ("04-agent-detail-triage.png", 2400),
-    ("05-how-it-works-full.png",   2400),
-    ("06-pricing-full.png",        2200),
-    ("07-chat-empty.png",          2000),
-    ("08-chat-rentroll.png",       3400),
-    ("09-chat-pro-forma.png",      3200),
-    ("10-chat-memo.png",           3400),
+    ("07-chat-empty.png",          1800),
+    ("08-chat-triage.png",         3200),
+    ("09-chat-lbo.png",            3200),
+    ("10-chat-memo.png",           3200),
+    ("11-pipeline-kanban.png",     3200),
+    ("12-pipeline-software.png",   2400),
+    ("13-pipeline-deal.png",       3400),
+    ("15-analytics-stages.png",    3200),
+    ("16-analytics-sector.png",    3200),
+    ("17-instructions-list.png",   2400),
+    ("18-instructions-edit.png",   2400),
 ]
 
 TARGET_W = 1200
 TARGET_H = 820  # top crop
+BG = (247, 246, 241)  # pehero parchment (#F7F6F1)
 
 
 def load_frame(path: Path) -> Image.Image:
@@ -38,7 +42,7 @@ def load_frame(path: Path) -> Image.Image:
     if img.height > TARGET_H:
         img = img.crop((0, 0, TARGET_W, TARGET_H))
     else:
-        canvas = Image.new("RGB", (TARGET_W, TARGET_H), (11, 18, 32))  # pehero bg
+        canvas = Image.new("RGB", (TARGET_W, TARGET_H), BG)
         canvas.paste(img, (0, 0))
         img = canvas
     return img
