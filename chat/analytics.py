@@ -28,7 +28,7 @@ from chat.components import left_pane, signin_overlay
 from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions
 from db import connect
-from landing.components import TAILWIND_CONFIG
+from landing.components import TAILWIND_CONFIG, _favicon_links
 from utils.llm import build_llm
 
 log = logging.getLogger(__name__)
@@ -202,6 +202,7 @@ def _head(title: str) -> Head:
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
         Title(f"{title} · PEHero"),
+        *_favicon_links(),
         Link(rel="preconnect", href="https://fonts.googleapis.com"),
         Link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin=""),
         Link(rel="stylesheet",

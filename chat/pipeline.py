@@ -23,7 +23,7 @@ from chat.components import (
 from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions, _ensure_session, _session_messages
 from db import connect, fetch_all, fetch_one
-from landing.components import TAILWIND_CONFIG
+from landing.components import TAILWIND_CONFIG, _favicon_links
 
 
 # Stage ordering — mirrors companies.deal_stage (pehero/schema.sql)
@@ -59,6 +59,7 @@ def _pipeline_head(title: str):
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
         Title(f"{title} · PEHero"),
+        *_favicon_links(),
         Link(rel="preconnect", href="https://fonts.googleapis.com"),
         Link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin=""),
         Link(rel="stylesheet",

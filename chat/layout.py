@@ -7,7 +7,7 @@ from fasthtml.common import (
     Div, Span,
 )
 
-from landing.components import SITE_NAME, TAILWIND_CONFIG
+from landing.components import SITE_NAME, TAILWIND_CONFIG, _favicon_links
 from chat.components import left_pane, center_pane, right_pane, signin_overlay
 
 
@@ -19,6 +19,7 @@ def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
         Meta(name="description", content="PEHero — agentic AI for private equity deal teams"),
         Title(f"App · {SITE_NAME}"),
+        *_favicon_links(),
         Link(rel="preconnect", href="https://fonts.googleapis.com"),
         Link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin=""),
         Link(

@@ -160,12 +160,24 @@ def _footer():
     )
 
 
+def _favicon_links():
+    """Shared favicon <link>s — included on every page (landing + app)."""
+    return [
+        Link(rel="icon", type="image/svg+xml", href="/static/favicon.svg"),
+        Link(rel="icon", type="image/png", sizes="32x32", href="/static/favicon.png"),
+        Link(rel="alternate icon", href="/static/favicon.ico"),
+        Link(rel="apple-touch-icon", sizes="180x180", href="/static/apple-touch-icon.png"),
+        Meta(name="theme-color", content="#1F5D43"),
+    ]
+
+
 def page(title: str, *content, current_path: str = "/", head_extra=None):
     head_children = [
         Meta(charset="utf-8"),
         Meta(name="viewport", content="width=device-width, initial-scale=1"),
         Meta(name="description", content=f"{SITE_NAME} — {SITE_TAGLINE}"),
         Title(f"{title} · {SITE_NAME}"),
+        *_favicon_links(),
         Link(rel="preconnect", href="https://fonts.googleapis.com"),
         Link(rel="preconnect", href="https://fonts.gstatic.com", crossorigin=""),
         Link(
