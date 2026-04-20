@@ -1,4 +1,4 @@
-"""Central registry of all 22 specialist PE agents.
+"""Central registry of all 24 specialist PE agents.
 
 Each `AgentSpec` is the source of truth for routing, UI rendering, and prompt
 loading. The agent module (in agents/<category>/<slug>.py) owns its TOOLS +
@@ -105,6 +105,30 @@ AGENTS: tuple[AgentSpec, ...] = (
             "Which of our tracked sponsor-held assets are past the 5-year hold mark?",
             "Rank founder-owned software targets by sale likelihood",
             "Show family-owned consumer businesses with highest succession risk",
+        ),
+    ),
+    AgentSpec(
+        slug="outreach_email", name="Outreach Email Drafter",
+        category="sourcing", icon="✉", prefix="outreach:",
+        one_liner="Personalized founder/broker outreach emails in your fund's voice.",
+        description="Drafts cold outreach emails to founders, brokers, or intermediaries — personalized to the target's sector, size, and ownership situation, with a clear ask and your fund's positioning.",
+        example_prompts=(
+            "outreach: draft an intro email to the founder of Northwind Systems",
+            "Write a broker outreach email for healthcare services targets in the DACH region",
+            "Draft a follow-up email to the Meridian Healthcare founder after our first call",
+            "Write an outreach email to a placement agent for Fund V co-invest opportunities",
+        ),
+    ),
+    AgentSpec(
+        slug="loi_writer", name="LOI Writer",
+        category="sourcing", icon="✍", prefix="loi:",
+        one_liner="Non-binding letter of intent — price, structure, conditions, timeline.",
+        description="Drafts a non-binding letter of intent covering indicative valuation, deal structure, key conditions, exclusivity period, timeline to close, and management rollover expectations.",
+        example_prompts=(
+            "loi: draft an LOI for Northwind Systems at €120M EV",
+            "Write a letter of intent for Meridian Healthcare — 10x LTM EBITDA, 60/40 equity-debt split",
+            "Draft an IOI for the Acme Industrial carve-out with an exclusivity ask",
+            "Prepare an LOI with a 90-day exclusivity period and management rollover terms",
         ),
     ),
 

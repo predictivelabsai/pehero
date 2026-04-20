@@ -20,6 +20,7 @@ from agents.registry import AGENTS, AGENTS_BY_SLUG
 from chat.components import (
     left_pane, right_pane, signin_overlay, sample_cards, message_bubble,
 )
+from chat.layout import _versioned
 from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions, _ensure_session, _session_messages
 from db import connect, fetch_all, fetch_one
@@ -190,7 +191,7 @@ def pipeline_home(sess, sector: str = "", ownership: str = ""):
             _board(by_stage, currency_symbol(get_currency(sess))),
             cls="center-pane pipeline-center",
         ),
-        Script(src="/static/chat.js"),
+        Script(src=_versioned("chat.js")),
         cls="bg-bg text-ink font-sans antialiased app pane-closed pipeline-app",
     )
     return Html(_pipeline_head("Pipeline"), body, lang="en")
@@ -354,7 +355,7 @@ def deal_detail(sess, slug: str):
         # Prompts data for sample cards
         NotStr(f'<script id="agent-prompts-data" type="application/json">{json.dumps({a.slug: list(a.example_prompts[:6]) for a in AGENTS})}</script>'),
         NotStr(f'<script id="agent-names-data" type="application/json">{json.dumps({a.slug: a.name for a in AGENTS})}</script>'),
-        Script(src="/static/chat.js"),
+        Script(src=_versioned("chat.js")),
         cls="bg-bg text-ink font-sans antialiased app",
     )
     return Html(_pipeline_head(co["name"]), body, lang="en")

@@ -25,6 +25,8 @@ CATEGORY_HINTS: dict[str, list[str]] = {
         "precedent", "trading comps", "transaction comps", "triage",
         "go no-go", "go/no-go", "scan the market", "seller intent",
         "likely to sell", "founder", "proprietary deal",
+        "outreach email", "cold email", "intro email", "broker email",
+        "loi", "letter of intent", "ioi", "indication of interest",
     ],
     "underwriting": [
         "cap table", "ltm", "trailing twelve months", "qoe",
@@ -90,6 +92,10 @@ def _best_in_category_for(message: str) -> str | None:
         return "pro_forma_builder"
     if "ic memo" in lower or "memo" in lower:
         return "investor_memo"
+    if "outreach" in lower or "cold email" in lower or "intro email" in lower or "broker email" in lower:
+        return "outreach_email"
+    if "loi" in lower or "letter of intent" in lower or "ioi" in lower or "indication of interest" in lower:
+        return "loi_writer"
     if "precedent" in lower or "transaction comps" in lower or "trading comps" in lower:
         return "comp_finder"
     if "cap table" in lower:

@@ -202,7 +202,9 @@ async def memo_file(request: Request, file_id: str):
     p = _session_dir(request) / f"{file_id}.pdf"
     if not p.exists():
         return JSONResponse({"error": "not found"}, status_code=404)
-    return FileResponse(str(p), media_type="application/pdf")
+    return FileResponse(str(p), media_type="application/pdf", headers={
+        "Access-Control-Allow-Origin": "*",
+    })
 
 
 @rt("/app/memo-pdf/view/{file_id}")

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+from pathlib import Path
+
 from fasthtml.common import (
     Html, Head, Body, Meta, Title, Link, Script, NotStr,
     Div, Span,
@@ -9,6 +12,14 @@ from fasthtml.common import (
 
 from landing.components import SITE_NAME, TAILWIND_CONFIG, _favicon_links
 from chat.components import left_pane, center_pane, right_pane, signin_overlay
+
+_STATIC = Path(__file__).resolve().parent.parent / "static"
+
+
+def _versioned(filename: str) -> str:
+    p = _STATIC / filename
+    h = hashlib.md5(p.read_bytes()).hexdigest()[:8] if p.exists() else "0"
+    return f"/static/{filename}?v={h}"
 
 
 def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
@@ -38,7 +49,7 @@ def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
                   current_currency=current_currency),
         center_pane(messages=messages, current_agent_slug=current_agent_slug),
         right_pane(),
-        Script(src="/static/chat.js"),
+        Script(src=_versioned("chat.js")),
         cls="bg-bg text-ink font-sans antialiased app pane-closed",
     )
     return Html(head, body, lang="en")

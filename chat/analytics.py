@@ -25,6 +25,7 @@ from starlette.responses import JSONResponse
 
 from app import rt
 from chat.components import left_pane, signin_overlay
+from chat.layout import _versioned
 from utils.session import get_currency, currency_symbol
 from chat.routes import _ensure_user, _list_sessions
 from db import connect
@@ -299,7 +300,7 @@ def analytics_home(sess):
             }
             window.runAnalytics = runAnalytics;
         """)),
-        Script(src="/static/chat.js"),
+        Script(src=_versioned("chat.js")),
         cls="bg-bg text-ink font-sans antialiased app pane-closed pipeline-app",
     )
     return Html(_head("Analytics"), body, lang="en")

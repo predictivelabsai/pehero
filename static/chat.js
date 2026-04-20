@@ -173,7 +173,7 @@
     };
 
     // ── Memo → PDF preview (IC Memo Writer + any markdown-heavy response) ──
-    const MEMO_AGENTS = new Set(["investor_memo", "deal_teaser", "lp_update"]);
+    const MEMO_AGENTS = new Set(["investor_memo", "deal_teaser", "lp_update", "outreach_email", "loi_writer"]);
     let lastMemoFileId = null;
 
     async function renderMemoPdf(markdown, title) {
@@ -188,12 +188,7 @@
     }
 
     function openPdfInPane(fileUrl, searchText, title) {
-        const abs = fileUrl.startsWith("http") ? fileUrl : (window.location.origin + fileUrl);
-        let viewer = "https://mozilla.github.io/pdf.js/web/viewer.html?file=" +
-                     encodeURIComponent(abs);
-        if (searchText) {
-            viewer += "#search=" + encodeURIComponent(String(searchText).slice(0, 120)) + "&phrase=true";
-        }
+        const src = fileUrl.startsWith("http") ? fileUrl : fileUrl;
         const body = $("#artifact-body");
         const empty = $("#artifact-empty");
         if (empty) empty.style.display = "none";
@@ -201,7 +196,7 @@
         body.innerHTML = `
             <div class="pdf-wrap">
               <div class="pdf-caption">${title ? escapeHtml(title) : "Memo preview"}${searchText ? " · <i>highlighting \"" + escapeHtml(searchText.slice(0, 40)) + "\"</i>" : ""}</div>
-              <iframe id="pdf-frame" class="pdf-iframe" src="${viewer}" allow="fullscreen"></iframe>
+              <iframe id="pdf-frame" class="pdf-iframe" src="${src}" allow="fullscreen"></iframe>
             </div>`;
         $("#artifact-subtitle").textContent = title || "PDF preview";
         document.querySelector(".app").classList.remove("pane-closed");
@@ -211,15 +206,10 @@
 
     async function highlightInLastPdf(searchText) {
         if (!lastMemoFileId) return false;
-        const body = new URLSearchParams({ search: searchText, file_id: lastMemoFileId });
-        const r = await fetch("/app/memo-pdf/highlight", { method: "POST", body });
-        if (!r.ok) return false;
-        const data = await r.json();
-        if (data.error) return false;
         const frame = document.getElementById("pdf-frame");
-        if (frame) frame.src = data.viewer_url;
+        if (frame) frame.src = `/app/memo-pdf/file/${lastMemoFileId}`;
         const cap = document.querySelector(".pdf-caption");
-        if (cap) cap.innerHTML = `Memo preview · <i>highlighting "${escapeHtml(searchText.slice(0, 40))}"</i>`;
+        if (cap) cap.innerHTML = `Memo preview · <i>"${escapeHtml(searchText.slice(0, 40))}"</i>`;
         return true;
     }
     window.renderMemoPdf = renderMemoPdf;
