@@ -29,20 +29,60 @@ def message_bubble(role: str, content: str, agent_slug: str | None = None):
 
 
 def _render_content(content: str) -> str:
-    """Trivial markdown-ish renderer (bold, italic, newlines). Kept dependency-free."""
-    import html
-    safe = html.escape(content)
-    # code fences → <pre>
+    """Server-side markdown → HTML for persisted messages."""
+    import html as _html
     import re
+
+    safe = _html.escape(content)
+    # code fences → <pre>
     safe = re.sub(r"```(.*?)```", lambda m: f"<pre>{m.group(1)}</pre>", safe, flags=re.DOTALL)
     # **bold**
     safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
-    # simple bullets
-    safe = re.sub(r"(?m)^- (.*)$", r"<li>\1</li>", safe)
-    safe = re.sub(r"(<li>.*?</li>\n?)+", r"<ul>\g<0></ul>", safe, flags=re.DOTALL)
-    # newlines
-    safe = safe.replace("\n", "<br>")
-    return safe
+
+    lines = safe.split("\n")
+    out = []
+    in_list = False
+    in_table = False
+    is_header = True
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("|") and stripped.endswith("|"):
+            if re.fullmatch(r"\|[\s\-:|]+\|", stripped):
+                continue
+            if not in_table:
+                out.append('<table>')
+                in_table = True
+                is_header = True
+            cells = [c.strip() for c in stripped[1:-1].split("|")]
+            tag = "th" if is_header else "td"
+            out.append("<tr>" + "".join(f"<{tag}>{c}</{tag}>" for c in cells) + "</tr>")
+            is_header = False
+        else:
+            if in_table:
+                out.append("</table>")
+                in_table = False
+            if stripped.startswith("- "):
+                if not in_list:
+                    out.append("<ul>")
+                    in_list = True
+                out.append(f"<li>{stripped[2:]}</li>")
+            else:
+                if in_list:
+                    out.append("</ul>")
+                    in_list = False
+                if stripped.startswith("### "):
+                    out.append(f"<h4>{stripped[4:]}</h4>")
+                elif stripped.startswith("## "):
+                    out.append(f"<h3>{stripped[3:]}</h3>")
+                elif stripped.startswith("# "):
+                    out.append(f"<h2>{stripped[2:]}</h2>")
+                else:
+                    out.append(line if line.strip() else "<br>")
+    if in_list:
+        out.append("</ul>")
+    if in_table:
+        out.append("</table>")
+    return "\n".join(out)
 
 
 def welcome_hero():

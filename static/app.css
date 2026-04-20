@@ -173,9 +173,6 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .msg-bubble h2 { font-size: 1rem; }
 .msg-bubble h3 { font-size: .9rem; }
 .msg-bubble h4 { font-size: .82rem; }
-.msg-bubble table { width: 100%; border-collapse: collapse; font-size: .78rem; margin: .4rem 0; }
-.msg-bubble th, .msg-bubble td { padding: .3rem .5rem; border: 1px solid var(--line); text-align: left; }
-.msg-bubble th { background: var(--bg); font-weight: 600; font-size: .72rem; }
 
 /* Welcome hero */
 .welcome-hero { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: min(720px, 85%); text-align: center; pointer-events: none; }
@@ -233,9 +230,25 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .artifact-card .meta { color: var(--ink-dim); font-size: .68rem; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .1em; margin-bottom: .3rem; }
 .artifact-card .body { color: var(--ink-muted); font-size: .78rem; line-height: 1.5; }
 
-.artifact-table { width: 100%; border-collapse: collapse; font-size: .72rem; }
-.artifact-table th, .artifact-table td { text-align: left; padding: .3rem .45rem; border-bottom: 1px solid var(--line); }
-.artifact-table th { color: var(--ink-dim); font-weight: 500; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .08em; font-size: .62rem; }
+/* Shared table styles — used in both chat bubbles and canvas */
+.pe-table, .artifact-table, .msg-bubble table {
+    width: 100%; border-collapse: collapse; font-size: .8rem; margin: .5rem 0;
+    display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--line); border-radius: .4rem;
+}
+.pe-table th, .artifact-table th, .msg-bubble th,
+.pe-table thead th, .artifact-table thead th, .msg-bubble thead th {
+    background: var(--ink); color: var(--bg); font-weight: 600; font-size: .72rem;
+    text-transform: uppercase; letter-spacing: .03em;
+}
+.pe-table th, .pe-table td, .artifact-table th, .artifact-table td,
+.msg-bubble th, .msg-bubble td {
+    text-align: left; padding: .4rem .6rem; border: 1px solid var(--line);
+}
+.pe-table tbody tr:nth-child(even) td, .artifact-table tbody tr:nth-child(even) td,
+.msg-bubble tbody tr:nth-child(even) td { background: var(--bg); }
+.pe-table tbody tr:hover td, .artifact-table tbody tr:hover td,
+.msg-bubble tbody tr:hover td { background: var(--accent-dim); }
 
 /* Tool call log (inline with assistant message) */
 .tool-log { font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: var(--ink-dim); margin-top: .35rem; padding-left: .8rem; border-left: 2px solid var(--line-br); }

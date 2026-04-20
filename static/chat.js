@@ -71,41 +71,9 @@
     }
 
     function renderMarkdownLite(text) {
-        let out = text
-            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-            .replace(/```([\s\S]*?)```/g, "<pre>$1</pre>")
-            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-        const lines = out.split("\n");
-        const html = [];
-        let inList = false;
-        let inTable = false;
-        let isHeader = true;
-        for (const l of lines) {
-            const trimmed = l.trim();
-            if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
-                if (trimmed.match(/^\|[\s\-:|]+\|$/)) continue;
-                if (!inTable) { html.push("<table>"); inTable = true; isHeader = true; }
-                const cells = trimmed.slice(1, -1).split("|").map(c => c.trim());
-                const tag = isHeader ? "th" : "td";
-                html.push("<tr>" + cells.map(c => `<${tag}>${c}</${tag}>`).join("") + "</tr>");
-                isHeader = false;
-            } else {
-                if (inTable) { html.push("</table>"); inTable = false; }
-                if (trimmed.match(/^- /)) {
-                    if (!inList) { html.push("<ul>"); inList = true; }
-                    html.push(`<li>${trimmed.slice(2)}</li>`);
-                } else {
-                    if (inList) { html.push("</ul>"); inList = false; }
-                    if (trimmed.match(/^### /)) html.push(`<h4>${trimmed.slice(4)}</h4>`);
-                    else if (trimmed.match(/^## /)) html.push(`<h3>${trimmed.slice(3)}</h3>`);
-                    else if (trimmed.match(/^# /)) html.push(`<h2>${trimmed.slice(2)}</h2>`);
-                    else html.push(l || "<br>");
-                }
-            }
-        }
-        if (inList) html.push("</ul>");
-        if (inTable) html.push("</table>");
-        return html.join("\n");
+        if (window.marked) return marked.parse(text);
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/\n/g, "<br>");
     }
 
     // ── CSV copy / download for tables ───────────────────────────
@@ -484,6 +452,7 @@
             <div class="body">${renderArtifactHTML(payload)}</div>
         `;
         body.prepend(card);
+        enhanceTables(card);
 
         document.querySelector(".app").classList.remove("pane-closed");
         $("#right-pane").classList.add("open");

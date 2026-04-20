@@ -105,6 +105,7 @@ Cookies via Starlette's `SessionMiddleware`. Helpers in `utils/session.py`: `get
 - When you rename or add an agent slug, remember: module path (`agents/<category>/<slug>.py`) must match, `prompts/system/<slug>.md` must exist, and the router's `_best_in_category_for` + `CATEGORY_HINTS` keyword maps might need updating too.
 - When you add a UI rule used on `/app`, put the CSS in `static/app.css`, not `static/pipeline.css` — the latter isn't loaded on the base chat route.
 - Favicon lives in `static/favicon.{svg,png,ico}` + `apple-touch-icon.png`. `landing.components._favicon_links()` renders the `<link>`s; `chat/layout.py` and the three sub-page `_head()` helpers (`pipeline.py`, `instructions.py`, `analytics.py`) all import and splat it.
+- **Minimize JavaScript — leverage FastHTML.** Render HTML server-side with FastHTML components wherever possible. Use JS only for interactions that require it (SSE streaming, clipboard, dynamic pane toggling). Tables, headings, lists, and other structural content in persisted messages must be rendered server-side in `_render_content()`. For live-streaming responses, `marked.js` handles markdown → HTML; after streaming completes the server-side renderer takes over on next page load.
 
 ## Pre-commit / pre-push checks
 

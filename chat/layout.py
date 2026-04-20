@@ -39,6 +39,7 @@ def chat_page(*, user_email: str | None, sessions: list, current_sid: str = "",
         ),
         Script(src="https://cdn.tailwindcss.com"),
         Script(NotStr(TAILWIND_CONFIG)),
+        Script(src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"),
         Link(rel="stylesheet", href="/static/site.css"),
         Link(rel="stylesheet", href=_versioned("app.css")),
     )
