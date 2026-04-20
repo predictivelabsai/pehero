@@ -216,28 +216,41 @@
     window.openPdfInPane = openPdfInPane;
     window.highlightInLastPdf = highlightInLastPdf;
 
+    const AGENT_TITLES = {
+        investor_memo: "IC Memo", deal_teaser: "Teaser", lp_update: "LP Update",
+        outreach_email: "Outreach Email", loi_writer: "Letter of Intent",
+    };
+
     function maybeAppendMemoPreviewButton(bubble, text, agentSlug) {
         if (!bubble || !text) return;
         if (!MEMO_AGENTS.has(agentSlug)) return;
-        // Heuristic: a memo needs at least a couple of markdown headers + some length
         const looksMemo = text.length > 400 && /(^|\n)##?\s+\w/.test(text);
         if (!looksMemo) return;
         const existing = bubble.parentElement.querySelector(".memo-preview-row");
         if (existing) return;
+        const docTitle = AGENT_TITLES[agentSlug] || "Document";
         const row = document.createElement("div");
         row.className = "memo-preview-row";
         row.innerHTML = `
             <button class="memo-preview-btn">📄 Preview PDF</button>
-            <span class="memo-preview-hint">Renders this memo as a PDF in the right pane — then ask "show me the deal size" to jump to it.</span>`;
+            <button class="memo-download-btn" style="display:none">⬇ Download PDF</button>`;
         bubble.parentElement.appendChild(row);
-        const btn = row.querySelector(".memo-preview-btn");
-        btn.onclick = async () => {
-            btn.disabled = true; btn.textContent = "Rendering…";
+        const previewBtn = row.querySelector(".memo-preview-btn");
+        const dlBtn = row.querySelector(".memo-download-btn");
+        previewBtn.onclick = async () => {
+            previewBtn.disabled = true; previewBtn.textContent = "Rendering…";
             try {
-                await renderMemoPdf(text, "IC memo");
-                btn.textContent = "✓ PDF open in the right pane";
+                const data = await renderMemoPdf(text, docTitle);
+                previewBtn.textContent = "✓ Open in canvas";
+                dlBtn.style.display = "inline-flex";
+                dlBtn.onclick = () => {
+                    const a = document.createElement("a");
+                    a.href = data.file_url;
+                    a.download = docTitle.replace(/\s+/g, "-").toLowerCase() + ".pdf";
+                    a.click();
+                };
             } catch (e) {
-                btn.textContent = "Render failed";
+                previewBtn.textContent = "Render failed";
                 console.error(e);
             }
         };
@@ -399,7 +412,7 @@
         $("#artifact-subtitle").textContent = payload.subtitle || "";
         const card = document.createElement("div");
         card.className = "artifact-card";
-        const title = payload.title || "Artifact";
+        const title = payload.title || "Canvas";
         const kind = payload.kind || "note";
         card.innerHTML = `
             <div class="meta">${kind}</div>

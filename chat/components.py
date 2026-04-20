@@ -329,7 +329,7 @@ def center_pane(*, messages: list[dict], current_agent_slug: str | None = None):
                 cls="chat-header-left",
             ),
             Div(
-                Button("Artifact", id="artifact-btn", cls="artifact-toggle-btn",
+                Button("Canvas", id="artifact-btn", cls="artifact-toggle-btn",
                        onclick="toggleArtifactPane()"),
                 cls="chat-header-actions",
             ),
@@ -360,10 +360,10 @@ def center_pane(*, messages: list[dict], current_agent_slug: str | None = None):
 
 
 def right_pane():
-    """Artifact pane — starts empty; filled by SSE artifact_show events."""
+    """Canvas pane — starts empty; filled by SSE artifact_show events."""
     return Div(
         Div(
-            Div(H3("Artifact", cls="right-title"),
+            Div(H3("Canvas", cls="right-title"),
                 Span("", id="artifact-subtitle", cls="right-subtitle"),
                 cls="right-header-left"),
             Button("✕", cls="right-close", onclick="toggleArtifactPane()"),
@@ -372,7 +372,7 @@ def right_pane():
         Div(
             Div(
                 Div("◈", cls="artifact-empty-icon"),
-                P("Artifacts appear here as agents produce them — company briefs, LBO models, comps tables, IC memo previews, RAG citations.",
+                P("Canvas renders here as agents produce them — company briefs, LBO models, comps tables, IC memo previews, RAG citations.",
                   cls="artifact-empty-text"),
                 id="artifact-empty",
                 cls="artifact-empty",

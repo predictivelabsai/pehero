@@ -302,7 +302,7 @@ def deal_detail(sess, slug: str):
                     cls="chat-header-left",
                 ),
                 Div(
-                    Button("Artifact", id="artifact-btn", cls="artifact-toggle-btn active",
+                    Button("Canvas", id="artifact-btn", cls="artifact-toggle-btn active",
                            onclick="toggleArtifactPane()"),
                     cls="chat-header-actions",
                 ),
