@@ -212,7 +212,7 @@ def _head(title: str) -> Head:
         Script(NotStr(TAILWIND_CONFIG)),
         Script(src="https://cdn.plot.ly/plotly-2.35.2.min.js"),
         Link(rel="stylesheet", href="/static/site.css"),
-        Link(rel="stylesheet", href="/static/app.css"),
+        Link(rel="stylesheet", href=_versioned("app.css")),
         Link(rel="stylesheet", href="/static/pipeline.css"),
     )
 

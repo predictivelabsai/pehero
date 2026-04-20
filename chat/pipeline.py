@@ -68,7 +68,7 @@ def _pipeline_head(title: str):
         Script(src="https://cdn.tailwindcss.com"),
         Script(NotStr(TAILWIND_CONFIG)),
         Link(rel="stylesheet", href="/static/site.css"),
-        Link(rel="stylesheet", href="/static/app.css"),
+        Link(rel="stylesheet", href=_versioned("app.css")),
         Link(rel="stylesheet", href="/static/pipeline.css"),
     )
 

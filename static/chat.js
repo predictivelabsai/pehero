@@ -78,17 +78,80 @@
         const lines = out.split("\n");
         const html = [];
         let inList = false;
+        let inTable = false;
+        let isHeader = true;
         for (const l of lines) {
-            if (l.match(/^- /)) {
-                if (!inList) { html.push("<ul>"); inList = true; }
-                html.push(`<li>${l.slice(2)}</li>`);
+            const trimmed = l.trim();
+            if (trimmed.startsWith("|") && trimmed.endsWith("|")) {
+                if (trimmed.match(/^\|[\s\-:|]+\|$/)) continue;
+                if (!inTable) { html.push("<table>"); inTable = true; isHeader = true; }
+                const cells = trimmed.slice(1, -1).split("|").map(c => c.trim());
+                const tag = isHeader ? "th" : "td";
+                html.push("<tr>" + cells.map(c => `<${tag}>${c}</${tag}>`).join("") + "</tr>");
+                isHeader = false;
             } else {
-                if (inList) { html.push("</ul>"); inList = false; }
-                html.push(l || "<br>");
+                if (inTable) { html.push("</table>"); inTable = false; }
+                if (trimmed.match(/^- /)) {
+                    if (!inList) { html.push("<ul>"); inList = true; }
+                    html.push(`<li>${trimmed.slice(2)}</li>`);
+                } else {
+                    if (inList) { html.push("</ul>"); inList = false; }
+                    if (trimmed.match(/^### /)) html.push(`<h4>${trimmed.slice(4)}</h4>`);
+                    else if (trimmed.match(/^## /)) html.push(`<h3>${trimmed.slice(3)}</h3>`);
+                    else if (trimmed.match(/^# /)) html.push(`<h2>${trimmed.slice(2)}</h2>`);
+                    else html.push(l || "<br>");
+                }
             }
         }
         if (inList) html.push("</ul>");
+        if (inTable) html.push("</table>");
         return html.join("\n");
+    }
+
+    // ── CSV copy / download for tables ───────────────────────────
+    function tableToCSV(table) {
+        const rows = [];
+        table.querySelectorAll("tr").forEach(tr => {
+            const cells = [];
+            tr.querySelectorAll("th, td").forEach(td => {
+                cells.push('"' + td.textContent.trim().replace(/"/g, '""') + '"');
+            });
+            rows.push(cells.join(","));
+        });
+        return rows.join("\n");
+    }
+
+    function enhanceTables(container) {
+        if (!container) return;
+        container.querySelectorAll("table").forEach(table => {
+            if (table.dataset.enhanced) return;
+            table.dataset.enhanced = "1";
+            const toolbar = document.createElement("div");
+            toolbar.className = "table-toolbar";
+            const copyBtn = document.createElement("button");
+            copyBtn.textContent = "Copy CSV";
+            copyBtn.className = "table-action-btn";
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(tableToCSV(table)).then(() => {
+                    copyBtn.textContent = "Copied!";
+                    setTimeout(() => { copyBtn.textContent = "Copy CSV"; }, 1500);
+                });
+            };
+            const dlBtn = document.createElement("button");
+            dlBtn.textContent = "Download CSV";
+            dlBtn.className = "table-action-btn";
+            dlBtn.onclick = () => {
+                const blob = new Blob([tableToCSV(table)], { type: "text/csv" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "pehero-data.csv";
+                a.click();
+                URL.revokeObjectURL(a.href);
+            };
+            toolbar.appendChild(copyBtn);
+            toolbar.appendChild(dlBtn);
+            table.parentNode.insertBefore(toolbar, table);
+        });
     }
 
     // ── Thinking indicator (timer + rotating tool name) ────────────
@@ -382,6 +445,7 @@
                     } else if (type === "done") {
                         hideThinking();
                         if (bubble) bubble.classList.remove("streaming");
+                        enhanceTables(bubble);
                         maybeAppendFollowUp(bubble, accumulated);
                         maybeAppendMemoPreviewButton(bubble, accumulated, payload.slug || currentAgentSlug);
                     }
@@ -521,5 +585,33 @@
         window.location.reload();
     };
 
+    // ── Copy / share chat ──────────────────────────────────────────
+    window.copyChat = () => {
+        const msgs = document.querySelectorAll(".msg");
+        const lines = [];
+        msgs.forEach(m => {
+            const role = m.classList.contains("msg-user") ? "You" : "PEHero";
+            const bubble = m.querySelector(".msg-bubble");
+            if (bubble) lines.push(`${role}: ${bubble.textContent.trim()}`);
+        });
+        const text = lines.join("\n\n");
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById("copy-chat-btn");
+            if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy chat"; }, 1500); }
+        });
+    };
+    window.shareChat = () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = document.getElementById("share-chat-btn");
+            if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
+        });
+    };
+
+    // Enhance any pre-rendered tables on page load
+    document.querySelectorAll(".msg-bubble").forEach(b => enhanceTables(b));
+
     window.sendMessage = sendMessage;
+    window.renderMarkdownLite = renderMarkdownLite;
+    window.enhanceTables = enhanceTables;
 })();

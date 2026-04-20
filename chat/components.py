@@ -329,6 +329,10 @@ def center_pane(*, messages: list[dict], current_agent_slug: str | None = None):
                 cls="chat-header-left",
             ),
             Div(
+                Button("Copy chat", id="copy-chat-btn", cls="chat-action-btn",
+                       onclick="copyChat()"),
+                Button("Share", id="share-chat-btn", cls="chat-action-btn",
+                       onclick="shareChat()"),
                 Button("Canvas", id="artifact-btn", cls="artifact-toggle-btn",
                        onclick="toggleArtifactPane()"),
                 cls="chat-header-actions",
