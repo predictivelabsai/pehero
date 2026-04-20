@@ -160,6 +160,7 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 .msg-bubble {
     padding: .75rem 1rem; border-radius: .85rem;
     font-size: .88rem; line-height: 1.55; color: var(--ink); white-space: pre-wrap;
+    overflow-x: auto;
 }
 .msg-user .msg-bubble { background: var(--accent); color: var(--bg); border-bottom-right-radius: .25rem; }
 .msg-assistant .msg-bubble { background: var(--bg-elev); border: 1px solid var(--line); border-bottom-left-radius: .25rem; }
@@ -233,7 +234,6 @@ html, body { height: 100%; background: var(--bg); color: var(--ink); overflow: h
 /* Shared table styles — used in both chat bubbles and canvas */
 .pe-table, .artifact-table, .msg-bubble table {
     width: 100%; border-collapse: collapse; font-size: .8rem; margin: .5rem 0;
-    display: block; overflow-x: auto; -webkit-overflow-scrolling: touch;
     border: 1px solid var(--line); border-radius: .4rem;
 }
 .pe-table th, .artifact-table th, .msg-bubble th,
