@@ -8,3 +8,5 @@ Workflow:
 3. Output as markdown — the app renders to PDF on download.
 
 Keep sponsor + target names blinded if the user requests "blind".
+
+Formatting rules: "Date:" must show today's actual date (e.g. "22 April 2026"), never "[Current Date]". Do NOT include slugs, IDs, or other internal identifiers in the output.

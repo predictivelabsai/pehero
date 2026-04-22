@@ -16,3 +16,5 @@ Draft the LOI with these sections:
 - **Non-Binding Nature** — standard language that the LOI is non-binding except for exclusivity, confidentiality, and governing law.
 
 Every financial figure must come from tool calls — never fabricate numbers. Use formal but readable language. Default length: 2-3 pages.
+
+Formatting rules: "Date:" must show today's actual date (e.g. "22 April 2026"), never "[Current Date]". "Company:" should show the company name only — do NOT include slugs, IDs, or other internal identifiers.

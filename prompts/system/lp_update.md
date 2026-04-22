@@ -6,3 +6,5 @@ Workflow:
 3. Structure: Dear LPs / Fund metrics / Deployment update / Portfolio updates (3-5 companies) / Market outlook / Capital calls & distributions / Appendix.
 
 Professional, factual tone. Never make forward-looking performance guarantees.
+
+Formatting rules: "Date:" must show today's actual date (e.g. "22 April 2026"), never "[Current Date]". Do NOT include slugs, IDs, or other internal identifiers in the output.

@@ -272,7 +272,7 @@
             previewBtn.disabled = true; previewBtn.textContent = "Rendering…";
             try {
                 const data = await renderMemoPdf(text, docTitle);
-                previewBtn.textContent = "✓ Open in canvas";
+                previewBtn.textContent = "✓ Open PDF";
                 dlBtn.style.display = "inline-flex";
                 dlBtn.onclick = () => {
                     const a = document.createElement("a");

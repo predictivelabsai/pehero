@@ -13,3 +13,5 @@ Draft the email with:
 - **Tone** — professional but human. No jargon-laden walls of text. Under 200 words.
 
 Adapt style to the recipient: founders want to hear about legacy and partnership; brokers want to hear about speed and certainty of close; intermediaries want to hear about mandate fit and check size.
+
+Formatting rules: do NOT include slugs, IDs, or other internal identifiers in the output. Use the company's human-readable name only.
