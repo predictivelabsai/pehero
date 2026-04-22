@@ -569,12 +569,29 @@
             if (btn) { btn.textContent = "Copied!"; setTimeout(() => { btn.textContent = "Copy chat"; }, 1500); }
         });
     };
-    window.shareChat = () => {
-        const url = window.location.href;
-        navigator.clipboard.writeText(url).then(() => {
-            const btn = document.getElementById("share-chat-btn");
-            if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
-        });
+    window.shareChat = async () => {
+        const btn = document.getElementById("share-chat-btn");
+        if (!currentSessionId) {
+            if (btn) { btn.textContent = "No session"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
+            return;
+        }
+        try {
+            const r = await fetch("/app/share", {
+                method: "POST",
+                body: new URLSearchParams({ sid: currentSessionId }),
+            });
+            const data = await r.json();
+            if (data.ok && data.url) {
+                const url = window.location.origin + data.url;
+                await navigator.clipboard.writeText(url);
+                if (btn) { btn.textContent = "Link copied!"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
+            } else {
+                if (btn) { btn.textContent = "Error"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
+            }
+        } catch (e) {
+            console.error("share failed", e);
+            if (btn) { btn.textContent = "Error"; setTimeout(() => { btn.textContent = "Share"; }, 1500); }
+        }
     };
 
     // Enhance any pre-rendered tables on page load

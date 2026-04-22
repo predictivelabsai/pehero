@@ -41,6 +41,13 @@ def migrate(drop: bool = False) -> None:
     for f in SCHEMA_FILES:
         print(f"applying {f.name} (embedding_dim={settings().embedding_dim})")
         _apply(_render(f))
+
+    # Incremental column additions (idempotent).
+    _apply("""
+        ALTER TABLE pehero.chat_sessions
+            ADD COLUMN IF NOT EXISTS share_token TEXT UNIQUE;
+    """)
+
     print("migration complete")
 
 

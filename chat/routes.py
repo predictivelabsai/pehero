@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import uuid
 from typing import Optional
 
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -282,6 +283,63 @@ async def app_config(request: Request):
     else:
         current = get_currency(request.session)
     return JSONResponse({"ok": True, "currency": current, "symbol": SYMBOLS.get(current, "€")})
+
+
+# ── Share links ────────────────────────────────────────────────────
+
+@rt("/app/share", methods=["POST"])
+async def share_session(request: Request):
+    sess = request.session
+    form = await request.form()
+    sid = form.get("sid") or ""
+    uid, _ = _ensure_user(sess)
+    if not uid or not sid:
+        return JSONResponse({"ok": False, "error": "not authenticated"}, status_code=401)
+    try:
+        sid_int = int(sid)
+    except (TypeError, ValueError):
+        return JSONResponse({"ok": False, "error": "bad sid"}, status_code=400)
+    row = fetch_one(
+        "SELECT id, share_token FROM pehero.chat_sessions WHERE id = %s AND user_id = %s",
+        (sid_int, uid),
+    )
+    if not row:
+        return JSONResponse({"ok": False, "error": "session not found"}, status_code=404)
+    token = row.get("share_token")
+    if not token:
+        token = uuid.uuid4().hex
+        with connect() as conn, conn.cursor() as cur:
+            cur.execute(
+                "UPDATE pehero.chat_sessions SET share_token = %s WHERE id = %s",
+                (token, sid_int),
+            )
+            conn.commit()
+    url = f"/app/s/{token}"
+    return JSONResponse({"ok": True, "token": token, "url": url})
+
+
+@rt("/app/s/{token}")
+def shared_chat(token: str):
+    row = fetch_one(
+        "SELECT cs.id, cs.title, cs.agent_slug, cs.user_id "
+        "FROM pehero.chat_sessions cs WHERE cs.share_token = %s",
+        (token,),
+    )
+    if not row:
+        return page(
+            Div(H1("Not found"), P("This shared chat link is invalid or has expired."),
+                cls="max-w-xl mx-auto py-24 text-center"),
+        )
+    messages = _session_messages(row["id"])
+    return chat_page(
+        user_email=None,
+        sessions=[],
+        current_sid="",
+        messages=messages,
+        current_agent_slug=row.get("agent_slug"),
+        current_currency="EUR",
+        readonly=True,
+    )
 
 
 # ── Debug ping (kept from Phase 0) ──────────────────────────────────

@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS pehero.chat_sessions (
     user_id      BIGINT      NOT NULL REFERENCES pehero.users(id) ON DELETE CASCADE,
     agent_slug   TEXT,
     title        TEXT,
+    share_token  TEXT        UNIQUE,
     created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );

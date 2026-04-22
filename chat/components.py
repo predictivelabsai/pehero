@@ -342,7 +342,7 @@ def sample_cards(current_agent_slug: str | None = None):
     )
 
 
-def center_pane(*, messages: list[dict], current_agent_slug: str | None = None):
+def center_pane(*, messages: list[dict], current_agent_slug: str | None = None, readonly: bool = False):
     has_messages = bool(messages)
     bubbles = [message_bubble(m["role"], m["content"], m.get("agent_slug")) for m in messages]
 
@@ -381,21 +381,23 @@ def center_pane(*, messages: list[dict], current_agent_slug: str | None = None):
         ),
         Div(*bubbles, id="messages", cls="messages"),
         welcome_hero() if not has_messages else Div(id="welcome-hero", style="display:none"),
-        Form(
-            Textarea(
-                id="chat-input", name="msg",
-                cls="chat-textarea",
-                placeholder=input_placeholder,
-                rows="2",
-                onkeydown="handleKey(event)",
-                oninput="autoResize(this); onInputChange(this)",
+        *([] if readonly else [
+            Form(
+                Textarea(
+                    id="chat-input", name="msg",
+                    cls="chat-textarea",
+                    placeholder=input_placeholder,
+                    rows="2",
+                    onkeydown="handleKey(event)",
+                    oninput="autoResize(this); onInputChange(this)",
+                ),
+                Button("Send", type="submit", cls="chat-send", id="send-btn"),
+                id="chat-form",
+                cls="chat-form",
+                onsubmit="sendMessage(event)",
             ),
-            Button("Send", type="submit", cls="chat-send", id="send-btn"),
-            id="chat-form",
-            cls="chat-form",
-            onsubmit="sendMessage(event)",
-        ),
-        sample_cards(current_agent_slug),
+            sample_cards(current_agent_slug),
+        ]),
         # JSON blob the client reads to re-render sample cards per-agent
         NotStr(f'<script id="agent-prompts-data" type="application/json">{json.dumps(prompts_lookup)}</script>'),
         NotStr(f'<script id="agent-names-data" type="application/json">{json.dumps(names_lookup)}</script>'),
